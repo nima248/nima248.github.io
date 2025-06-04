@@ -1,0 +1,59 @@
+:root {
+    --bg: hsl(0, 0%, 11%);
+    --button-bg: hsl(0, 0%, 30%);
+    --button-border-col: hsl(0, 0%, 37%);
+    --button-size: 100px;
+    --button-gap: 10px;
+}
+
+body {
+    background-color: var(--bg);
+    font-family: sans-serif;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    flex-flow: row nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#note_grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--button-gap);
+    width: var(--button-size * 4 + --button-gap * 3);
+}
+
+#note_grid,
+button {
+    color: ivory;
+    background-color: var(--bg);
+}
+
+.row {
+    display: flex;
+    gap: var(--button-gap);
+}
+
+.align-left,
+.align-right {
+    flex: none;
+}
+
+.align-left {
+    justify-content: flex-start;
+}
+
+.align-right {
+    justify-content: flex-end;
+}
+
+#note_grid .row > button {
+    font-size: 32px;
+    font-weight: 700;
+    background-color: var(--button-bg);
+    height: 100px;
+    width: var(--button-size);
+    border: 4px solid var(--button-border-col);
+}
