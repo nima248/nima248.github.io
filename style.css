@@ -1,9 +1,12 @@
 :root {
     --bg: hsl(0, 0%, 11%);
-    --button-bg: hsl(0, 0%, 30%);
-    --button-border-col: hsl(0, 0%, 37%);
-    --button-size: 100px;
-    --button-gap: 10px;
+    --note-btn-bg: hsl(0, 0%, 30%);
+    --note-btn-border-col: hsl(0, 0%, 37%);
+    --note-btn-bg-hover: hsl(0, 0%, 42%);
+    --note-btn-active-bg: hsl(120, 50%, 30%);
+    --note-btn-active-border-col: hsl(120, 50%, 37%);
+    --note-btn-size: 100px;
+    --note-btn-gap: 10px;
 }
 
 body {
@@ -21,19 +24,19 @@ body {
 #note_grid {
     display: flex;
     flex-direction: column;
-    gap: var(--button-gap);
-    width: var(--button-size * 4 + --button-gap * 3);
+    gap: var(--note-btn-gap);
+    width: var(--note-btn-size * 4 + --note-btn-gap * 3);
 }
 
 #note_grid,
-button {
+.note-btn {
     color: ivory;
     background-color: var(--bg);
 }
 
 .row {
     display: flex;
-    gap: var(--button-gap);
+    gap: var(--note-btn-gap);
 }
 
 .align-left,
@@ -49,11 +52,21 @@ button {
     justify-content: flex-end;
 }
 
-#note_grid .row > button {
+.note-btn {
     font-size: 32px;
     font-weight: 700;
-    background-color: var(--button-bg);
-    height: 100px;
-    width: var(--button-size);
-    border: 4px solid var(--button-border-col);
+    background-color: var(--note-btn-bg);
+    height: var(--note-btn-size);
+    width: var(--note-btn-size);
+    border: 4px solid var(--note-btn-border-col);
+    border-radius: 20px;
+}
+
+.note-btn:not(.active-note):hover {
+    background-color: var(--note-btn-bg-hover);
+}
+
+.note-btn.active-note {
+    background-color: var(--note-btn-active-bg);
+    border-color: var(--note-btn-active-border-col);
 }
