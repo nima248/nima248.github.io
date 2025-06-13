@@ -1,52 +1,106 @@
 import { Voice } from "./Voice.js";
-import { getTone } from "./ToneJsLoader.js";
+import * as math from "./math.js";
 
-let Tone; // dynamically imported on user interaction
-
-const bufferCache = new Map();
+const audioDir = "/assets/audio/";
 
 export class VoiceManager {
   /* Manages Voice objects by directing them which audio
-   *  files to load and play.
+   *  files to play.
    */
-  constructor(nVoices = 2) {
+  constructor(nVoices = 7) {
     this.voices = [];
-    this.nVoices = nVoices;
-    this.audioFiles = null;
-    this.readJson();
+    this.audioManifest = null;
+    this.audioFileBlobs = new Map();
+    this.audioFileBlobURLs = new Map();
+    this.playingFreq = null;
+    this.setNVoices(nVoices);
+    this.startFetchAudio();
   }
 
-  async readJson() {
-    fetch("/assets/audio/audio-files.json")
+  setNVoices(nVoices) {
+    if (!Number.isInteger(nVoices)) {
+      throw `Can't set nVoices to ${nVoices} - must be integer`;
+    }
+    this.nVoices = nVoices;
+    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices));
+    if (this.playingFreq) {
+      // gracefully restart all voices
+      for (voice of this.voices) {
+        voice.restartWithNewVolume(this.voiceVolumeDb);
+      }
+    } else {
+      for (voice of this.voices) {
+        voice.setVolume(this.voiceVolumeDb);
+      }
+    }
+  }
+
+  startFetchAudio() {
+    // Load audio files manifest
+    fetch(audioDir + "audio-files.json")
       .then((response) => {
         if (!response.ok) {
           throw new Error("HTTP error " + response.status);
         }
         return response.json();
       })
+      // Fetch all audio files
       .then((json) => {
-        this.audioFiles = json;
+        this.audioManifest = json;
+        const allFiles = Object.values(this.audioManifest).flat();
+        for (const file of allFiles) {
+          this.audioFileBlobs.set(
+            file,
+            fetch(`${audioDir}${file}`).then((res) => res.blob()),
+          );
+          this.audioFileBlobURLs.set(
+            file,
+            this.audioFileBlobs
+              .get(file)
+              .then((blob) => URL.createObjectURL(blob)),
+          );
+        }
+        Promise.all(this.audioFileBlobURLs.values()).then(() => {
+          console.info(`Fetched ${this.audioFileBlobURLs.size} audio files`);
+        });
       })
       .catch((e) => {
-        console.log(`json import error: ${e}`);
+        console.error(`initialisation error: ${e}`);
       });
   }
 
   async playFrequency(frequency) {
     const note = calculateWestNote(frequency);
-    console.log(`Freq ${frequency} is ${note.name} ${note.offset.toFixed(2)}`);
+    if (!Object.keys(this.audioManifest).includes(note.name)) {
+      console.warn(`Note ${note.name} has no matching audio file`);
+      return;
+    }
+    // Start all voices
+    const choices = this.audioManifest[note.name];
+    for (let i = 0; i < this.nVoices; i++) {
+      const file = choices[math.randomInt(choices.length)];
+      const url = await this.audioFileBlobURLs.get(file);
+      if (this.voices.length < i + 1) {
+        this.voices.push(new Voice());
+        console.debug(`Added voice number ${this.voices.length}`);
+        await this.voices[i].initialise(this.voiceVolumeDb);
+      }
+      this.voices[i].playFile(url, note.semitonesOffset);
+      // Delay between starting each voice
+      if (i < this.nVoices - 1) {
+        let delayMs = (200 + math.randomInt(350)) / this.nVoices;
+        await new Promise((r) => setTimeout(r, delayMs));
+        console.debug(`Delaying ${delayMs} ms`);
+      }
+    }
   }
 
-  async loadBuffer(url) {
-    if (!Tone) {
-      Tone = await ToneJsLoader.getTone();
+  stopAll() {
+    console.debug("Stopping all voices");
+    this.playingFreq = null;
+    for (const voice of this.voices) {
+      voice.stop();
     }
-    if (bufferCache.has(url)) {
-      return bufferCache.get(url);
-    }
-    const buffer = await new Tone.ToneAudioBuffer(url).load();
-    bufferCache.set(url, buffer);
-    return buffer;
   }
 }
 
@@ -67,39 +121,13 @@ const NOTES = [
 
 function calculateWestNote(frequency) {
   // A4 = 440Hz
-  const noteNum = 12 * log2(frequency / 440) + 48;
+  const noteNum = 12 * math.baseLog(2, frequency / 440) + 48;
   const noteNumInt = Math.floor(noteNum + 0.5);
   const letterIndex = noteNumInt % 12; // A = 0
   const octave = Math.floor((noteNum + 9.5) / 12);
   const semitonesOffset = noteNum - noteNumInt;
   return {
     name: `${NOTES[letterIndex]}${octave}`,
-    offset: semitonesOffset, // between -0.5 and 0.5
+    semitonesOffset: semitonesOffset, // between -0.5 and 0.5
   };
 }
-
-function log2(number) {
-  return Math.log(number) / Math.log(2);
-}
-
-/* Handle dynamic importing of ToneJS on user interaction.
- * Required because ToneJS tries to start an audio context
- * on import, and this triggers a warning in the browser
- * if no user interaction has happened yet.
- */
-const noteBtnSelector = ".note-btn";
-
-async function importToneJs() {
-  console.log("Importing Tone.js...");
-  Tone = await getTone();
-  console.log("Tone.js imported");
-  await Tone.start();
-  console.log("Audio context intialised");
-  document.querySelectorAll(noteBtnSelector).forEach((btn) => {
-    btn.removeEventListener("click", importToneJs);
-  });
-}
-
-document.querySelectorAll(noteBtnSelector).forEach((btn) => {
-  btn.addEventListener("click", importToneJs);
-});

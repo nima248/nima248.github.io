@@ -80,8 +80,8 @@ document.addEventListener(
     const scriptText = await toneScriptTextPromise;
     const blob = new Blob([scriptText], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
-    const mod = await import(url);
-    toneModulePromiseResolve(mod);
+    await import(url);
+    toneModulePromiseResolve();
   },
   { once: true },
 );
