@@ -14,7 +14,20 @@ export class VoiceManager {
     this.audioFileBlobURLs = new Map();
     this.playingFreq = null;
     this.setNVoices(nVoices);
-    this.startFetchAudio();
+    this._audioManifestLoaded = new Promise((resolve) => {
+      this._audioManifestLoadedResolve = resolve;
+    });
+    this.initialise();
+  }
+
+  initialise() {
+    this.startFetchAudioManifest()
+      .then(() => this._audioManifestLoadedResolve())
+      .then(() => this.startFetchAudioFiles());
+  }
+
+  audioManifestLoaded() {
+    return this._audioManifestLoaded;
   }
 
   setNVoices(nVoices) {
@@ -22,7 +35,7 @@ export class VoiceManager {
       throw `Can't set nVoices to ${nVoices} - must be integer`;
     }
     this.nVoices = nVoices;
-    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices));
+    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices)) - 3;
     if (this.playingFreq) {
       // gracefully restart all voices
       for (voice of this.voices) {
@@ -35,43 +48,51 @@ export class VoiceManager {
     }
   }
 
-  startFetchAudio() {
-    // Load audio files manifest
-    fetch(audioDir + "audio-files.json")
+  startFetchAudioManifest() {
+    return fetch(audioDir + "audio-files.json")
       .then((response) => {
         if (!response.ok) {
           throw new Error("HTTP error " + response.status);
         }
         return response.json();
       })
-      // Fetch all audio files
       .then((json) => {
         this.audioManifest = json;
-        const allFiles = Object.values(this.audioManifest).flat();
-        for (const file of allFiles) {
-          this.audioFileBlobs.set(
-            file,
-            fetch(`${audioDir}${file}`).then((res) => res.blob()),
-          );
-          this.audioFileBlobURLs.set(
-            file,
-            this.audioFileBlobs
-              .get(file)
-              .then((blob) => URL.createObjectURL(blob)),
-          );
-        }
-        Promise.all(this.audioFileBlobURLs.values()).then(() => {
-          console.info(`Fetched ${this.audioFileBlobURLs.size} audio files`);
-        });
       })
       .catch((e) => {
-        console.error(`initialisation error: ${e}`);
+        console.error(`audio manifest initialisation error: ${e}`);
       });
+  }
+
+  startFetchAudioFiles() {
+    const allFiles = Object.values(this.audioManifest).flat();
+    for (const file of allFiles) {
+      this.audioFileBlobs.set(
+        file,
+        fetch(`${audioDir}${file}`).then((res) => res.blob()),
+      );
+      this.audioFileBlobURLs.set(
+        file,
+        this.audioFileBlobs.get(file).then((blob) => URL.createObjectURL(blob)),
+      );
+    }
+    Promise.all(this.audioFileBlobURLs.values())
+      .then(() => {
+        console.info(`Fetched ${this.audioFileBlobURLs.size} audio files`);
+      })
+      .catch((e) => {
+        console.error(`audio files initialisation error: ${e}`);
+      });
+  }
+
+  haveAudioForFreq(frequency) {
+    const note = calculateWestNote(frequency);
+    return this.#haveAudioForNote(note);
   }
 
   async playFrequency(frequency) {
     const note = calculateWestNote(frequency);
-    if (!Object.keys(this.audioManifest).includes(note.name)) {
+    if (!this.#haveAudioForNote(note)) {
       console.warn(`Note ${note.name} has no matching audio file`);
       return;
     }
@@ -90,7 +111,6 @@ export class VoiceManager {
       if (i < this.nVoices - 1) {
         let delayMs = (200 + math.randomInt(350)) / this.nVoices;
         await new Promise((r) => setTimeout(r, delayMs));
-        console.debug(`Delaying ${delayMs} ms`);
       }
     }
   }
@@ -101,6 +121,10 @@ export class VoiceManager {
     for (const voice of this.voices) {
       voice.stop();
     }
+  }
+
+  #haveAudioForNote(note) {
+    return Object.keys(this.audioManifest).includes(note.name);
   }
 }
 

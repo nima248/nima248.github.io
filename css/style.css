@@ -1,6 +1,7 @@
 :root {
     --bg: hsl(0, 0%, 11%);
     --note-btn-bg: hsl(0, 0%, 30%);
+    --note-btn-bg-disabled: var(--bg);
     --note-btn-border-col: hsl(0, 0%, 37%);
     --note-btn-bg-hover: hsl(0, 0%, 42%);
     --note-btn-active-bg: hsl(120, 50%, 30%);
@@ -62,7 +63,12 @@ body {
     border-radius: 20px;
 }
 
-.note-btn:not(.active-note):hover {
+.note-btn:disabled {
+    color: grey;
+    background-color: var(--note-btn-bg-disabled);
+}
+
+.note-btn:not(.active-note):not(:disabled):hover {
     background-color: var(--note-btn-bg-hover);
 }
 
