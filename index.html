@@ -7,30 +7,37 @@
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
-    <div id="note_grid">
-      <div class="row align-left">
-        <button class="note-btn" id="note-high-ni">Ni</button>
+    <div id="content">
+      <div id="note-grid">
+        <div class="note-row align-left">
+          <button class="note-btn" id="note-high-ni">Ni</button>
+        </div>
+        <div class="note-row">
+          <button class="note-btn" id="note-di">Di</button>
+          <button class="note-btn" id="note-ke">Ki</button>
+          <button class="note-btn" id="note-zo-flat">Zo-f</button>
+          <button class="note-btn" id="note-zo">Zo</button>
+        </div>
+        <div class="note-row">
+          <button class="note-btn" id="note-ni">Ni</button>
+          <button class="note-btn" id="note-pa">Pa</button>
+          <button class="note-btn" id="note-bou">Bou</button>
+          <button class="note-btn" id="note-ga">Ga</button>
+        </div>
+        <div class="note-row">
+          <button class="note-btn" id="note-low-di">Di</button>
+          <button class="note-btn" id="note-low-ke">Ke</button>
+          <button class="note-btn" id="note-low-zo-flat">Zo-f</button>
+          <button class="note-btn" id="note-low-zo">Zo</button>
+        </div>
+        <div class="note-row align-right">
+          <button class="note-btn" id="note-low-ga">Ga</button>
+        </div>
       </div>
-      <div class="row">
-        <button class="note-btn" id="note-di">Di</button>
-        <button class="note-btn" id="note-ke">Ki</button>
-        <button class="note-btn" id="note-zo-flat">Zo-f</button>
-        <button class="note-btn" id="note-zo">Zo</button>
-      </div>
-      <div class="row">
-        <button class="note-btn" id="note-ni">Ni</button>
-        <button class="note-btn" id="note-pa">Pa</button>
-        <button class="note-btn" id="note-bou">Bou</button>
-        <button class="note-btn" id="note-ga">Ga</button>
-      </div>
-      <div class="row">
-        <button class="note-btn" id="note-low-di">Di</button>
-        <button class="note-btn" id="note-low-ke">Ke</button>
-        <button class="note-btn" id="note-low-zo-flat">Zo-f</button>
-        <button class="note-btn" id="note-low-zo">Zo</button>
-      </div>
-      <div class="row align-right">
-        <button class="note-btn" id="note-low-ga">Ga</button>
+      <div id="pitch-control">
+        <button class="pitch-btn" id="pitch-down">-</button>
+        <p id="pitch-shift">pitch</p>
+        <button class="pitch-btn" id="pitch-up">+</button>
       </div>
     </div>
   </body>

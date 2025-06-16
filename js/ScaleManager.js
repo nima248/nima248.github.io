@@ -29,7 +29,9 @@ const DEFAULT_BASIS_FREQS = {
 export class ScaleManager {
   constructor() {
     this.scale = SCALES.diatonic;
-    this.setMoriaShift(0);
+    this.semitonesShift = -1;
+    this.basisFrequency = null;
+    this._calculateBasisFrequency();
   }
 
   getFreq(note, octave) {
@@ -42,9 +44,19 @@ export class ScaleManager {
     return freq;
   }
 
-  setMoriaShift(moria) {
-    // Convert moria shift to a multiplicative value
-    const shiftMult = 2 ** (moria / 72);
+  getSemitonesShift() {
+    return this.semitonesShift;
+  }
+
+  changeSemitonesShift(semitonesChange) {
+    this.semitonesShift += semitonesChange;
+    this._calculateBasisFrequency();
+    return this.semitonesShift;
+  }
+
+  _calculateBasisFrequency() {
+    // Convert semitones shift to a frequency multiplier
+    const shiftMult = 2 ** (this.semitonesShift / 12);
     this.basisFreq = DEFAULT_BASIS_FREQS[this.scale.basis] * shiftMult;
     console.debug(`Basis ${this.scale.basis} set to ${this.basisFreq}`);
   }

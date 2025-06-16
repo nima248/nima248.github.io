@@ -115,7 +115,7 @@ export class VoiceManager {
     }
   }
 
-  stopAll() {
+  stop() {
     console.debug("Stopping all voices");
     this.playingFreq = null;
     for (const voice of this.voices) {
