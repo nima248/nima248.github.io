@@ -3,6 +3,7 @@ import { toneModulePromise } from "./ToneJsLoader.js";
 const FADEIN = 0.1;
 const FADEOUT_FAST = 0.1; // Changing to new note
 const FADEOUT_SLOW = 1.6; // Ending playback
+const START_DELAY = 0.05;
 
 let Tone = null; // dynamically imported after user interaction
 
@@ -30,6 +31,7 @@ export class Voice {
     this._stopPromise = null;
     this._fullyStopped = true;
     this.initialised = true;
+    this.lastStartTime = 0;
   }
 
   setFadeoutSlow() {
@@ -46,14 +48,18 @@ export class Voice {
     }
     this.stop()
       .then(() => this.player.load(url))
-      .then(() => this.start())
-      .then(() => (this.run = true));
+      .then(() => this.start());
   }
 
   start() {
     this.setVolume(this.volumeDb);
     this.run = true;
-    this.player.start();
+    let startTime = Tone.now() + START_DELAY;
+    if (startTime <= this.lastStartTime) {
+      startTime = this.lastStartTime + 0.001;
+    }
+    this.player.start(startTime);
+    this.lastStartTime = startTime;
     this.startTime = Tone.now();
   }
 
@@ -65,7 +71,6 @@ export class Voice {
       return this._stopPromise;
     }
     this.run = false;
-    //this.player.stop();
     this.player.volume.cancelScheduledValues(Tone.now());
     this.player.volume.linearRampTo(-Infinity, this.fadeOut);
     this._stopPromise = new Promise((resolve) => {

@@ -3,7 +3,7 @@ import * as math from "./math.js";
 
 const audioDir = "/assets/audio/";
 
-const N_VOICES = 2;
+const N_VOICES = 3;
 
 export class VoiceManager {
   /* Manages Voice objects by directing them which audio
@@ -23,6 +23,12 @@ export class VoiceManager {
   }
 
   initialise() {
+    this.audioFormat = getSupportedAudioFormat();
+    if (this.audioFormat) {
+      console.info(`Audio format: ${this.audioFormat}`);
+    } else {
+      throw "No supported audio format!";
+    }
     this.startFetchAudioManifest()
       .then(() => this._audioManifestLoadedResolve())
       .then(() => this.startFetchAudioFiles());
@@ -37,7 +43,7 @@ export class VoiceManager {
       throw `Can't set nVoices to ${nVoices} - must be integer`;
     }
     this.nVoices = nVoices;
-    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices)) - 3;
+    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices)) - 6;
     if (this.playingFreq) {
       // gracefully restart all voices
       for (voice of this.voices) {
@@ -67,11 +73,15 @@ export class VoiceManager {
   }
 
   startFetchAudioFiles() {
-    const allFiles = Object.values(this.audioManifest).flat();
+    const allFiles = Object.values(this.audioManifest[this.audioFormat]).flat();
+    this.audioFileBlobs = new Map();
+    this.audioFileBlobURLs = new Map();
     for (const file of allFiles) {
       this.audioFileBlobs.set(
         file,
-        fetch(`${audioDir}${file}`).then((res) => res.blob()),
+        fetch(`${audioDir}${this.audioFormat}/${file}`)
+          .then((res) => res.blob())
+          .catch((e) => console.error(e)),
       );
       this.audioFileBlobURLs.set(
         file,
@@ -80,7 +90,9 @@ export class VoiceManager {
     }
     Promise.all(this.audioFileBlobURLs.values())
       .then(() => {
-        console.info(`Fetched ${this.audioFileBlobURLs.size} audio files`);
+        console.info(
+          `Fetched ${this.audioFileBlobURLs.size} ${this.audioFormat} files`,
+        );
       })
       .catch((e) => {
         console.error(`audio files initialisation error: ${e}`);
@@ -99,7 +111,7 @@ export class VoiceManager {
       return;
     }
     // Start all voices
-    const choices = this.audioManifest[note.name];
+    const choices = this.audioManifest[this.audioFormat][note.name];
     for (let i = 0; i < this.nVoices; i++) {
       const file = choices[math.randomInt(choices.length)];
       const url = await this.audioFileBlobURLs.get(file);
@@ -112,7 +124,7 @@ export class VoiceManager {
       this.voices[i].playFile(url, note.semitonesOffset);
       // Delay between starting each voice
       if (i < this.nVoices - 1) {
-        let delayMs = (200 + math.randomInt(350)) / this.nVoices;
+        let delayMs = (600 + math.randomInt(150)) / this.nVoices;
         await new Promise((r) => setTimeout(r, delayMs));
       }
     }
@@ -128,7 +140,9 @@ export class VoiceManager {
   }
 
   #haveAudioForNote(note) {
-    return Object.keys(this.audioManifest).includes(note.name);
+    return Object.keys(this.audioManifest[this.audioFormat]).includes(
+      note.name,
+    );
   }
 }
 
@@ -158,4 +172,16 @@ function calculateWestNote(frequency) {
     name: `${NOTES[letterIndex]}${octave}`,
     semitonesOffset: semitonesOffset, // between -0.5 and 0.5
   };
+}
+
+function getSupportedAudioFormat() {
+  const audio = document.createElement("audio");
+
+  if (audio.canPlayType('audio/ogg; codecs="vorbis"')) {
+    return "ogg";
+  } else if (audio.canPlayType("audio/mpeg")) {
+    return "mp3";
+  } else {
+    return null; // No supported format found
+  }
 }

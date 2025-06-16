@@ -1,87 +1,176 @@
 {
-  "A2": [
-    "A2-b.mp3",
-    "A2-c.mp3",
-    "A2.mp3"
-  ],
-  "A3": [
-    "A3-b.mp3",
-    "A3-c.mp3",
-    "A3.mp3"
-  ],
-  "Ash2": [
-    "Ash2-b.mp3",
-    "Ash2-c.mp3",
-    "Ash2.mp3"
-  ],
-  "B2": [
-    "B2-b.mp3",
-    "B2-c.mp3",
-    "B2.mp3"
-  ],
-  "C3": [
-    "C3-b.mp3",
-    "C3-c.mp3",
-    "C3.mp3"
-  ],
-  "Csh3": [
-    "Csh3-b.mp3",
-    "Csh3-c.mp3",
-    "Csh3.mp3"
-  ],
-  "D3": [
-    "D3-b.mp3",
-    "D3-c.mp3",
-    "D3.mp3"
-  ],
-  "Dsh3": [
-    "Dsh3-b.mp3",
-    "Dsh3-c.mp3",
-    "Dsh3.mp3"
-  ],
-  "E3": [
-    "E3-b.mp3",
-    "E3-c.mp3",
-    "E3.mp3"
-  ],
-  "F2": [
-    "F2-b.mp3",
-    "F2-c.mp3",
-    "F2.mp3"
-  ],
-  "F3": [
-    "F3-b.mp3",
-    "F3-c.mp3",
-    "F3.mp3"
-  ],
-  "Fsh2": [
-    "Fsh2-b.mp3",
-    "Fsh2-c.mp3",
-    "Fsh2.mp3"
-  ],
-  "Fsh3": [
-    "Fsh3-b.mp3",
-    "Fsh3-c.mp3",
-    "Fsh3.mp3"
-  ],
-  "G2": [
-    "G2-b.mp3",
-    "G2-c.mp3",
-    "G2.mp3"
-  ],
-  "G3": [
-    "G3-b.mp3",
-    "G3-c.mp3",
-    "G3.mp3"
-  ],
-  "Gsh2": [
-    "Gsh2-b.mp3",
-    "Gsh2-c.mp3",
-    "Gsh2.mp3"
-  ],
-  "Gsh3": [
-    "Gsh3-b.mp3",
-    "Gsh3-c.mp3",
-    "Gsh3.mp3"
-  ]
+  "mp3": {
+    "A2": [
+      "A2-b.mp3",
+      "A2-c.mp3",
+      "A2.mp3"
+    ],
+    "A3": [
+      "A3-b.mp3",
+      "A3-c.mp3",
+      "A3.mp3"
+    ],
+    "Ash2": [
+      "Ash2-b.mp3",
+      "Ash2-c.mp3",
+      "Ash2.mp3"
+    ],
+    "B2": [
+      "B2-b.mp3",
+      "B2-c.mp3",
+      "B2.mp3"
+    ],
+    "C3": [
+      "C3-b.mp3",
+      "C3-c.mp3",
+      "C3.mp3"
+    ],
+    "Csh3": [
+      "Csh3-b.mp3",
+      "Csh3-c.mp3",
+      "Csh3.mp3"
+    ],
+    "D3": [
+      "D3-b.mp3",
+      "D3-c.mp3",
+      "D3.mp3"
+    ],
+    "Dsh3": [
+      "Dsh3-b.mp3",
+      "Dsh3-c.mp3",
+      "Dsh3.mp3"
+    ],
+    "E3": [
+      "E3-b.mp3",
+      "E3-c.mp3",
+      "E3.mp3"
+    ],
+    "F2": [
+      "F2-b.mp3",
+      "F2-c.mp3",
+      "F2.mp3"
+    ],
+    "F3": [
+      "F3-b.mp3",
+      "F3-c.mp3",
+      "F3.mp3"
+    ],
+    "Fsh2": [
+      "Fsh2-b.mp3",
+      "Fsh2-c.mp3",
+      "Fsh2.mp3"
+    ],
+    "Fsh3": [
+      "Fsh3-b.mp3",
+      "Fsh3-c.mp3",
+      "Fsh3.mp3"
+    ],
+    "G2": [
+      "G2-b.mp3",
+      "G2-c.mp3",
+      "G2.mp3"
+    ],
+    "G3": [
+      "G3-b.mp3",
+      "G3-c.mp3",
+      "G3.mp3"
+    ],
+    "Gsh2": [
+      "Gsh2-b.mp3",
+      "Gsh2-c.mp3",
+      "Gsh2.mp3"
+    ],
+    "Gsh3": [
+      "Gsh3-b.mp3",
+      "Gsh3-c.mp3",
+      "Gsh3.mp3"
+    ]
+  },
+  "ogg": {
+    "A2": [
+      "A2-b.ogg",
+      "A2-c.ogg",
+      "A2.ogg"
+    ],
+    "A3": [
+      "A3-b.ogg",
+      "A3-c.ogg",
+      "A3.ogg"
+    ],
+    "Ash2": [
+      "Ash2-b.ogg",
+      "Ash2-c.ogg",
+      "Ash2.ogg"
+    ],
+    "B2": [
+      "B2-b.ogg",
+      "B2-c.ogg",
+      "B2.ogg"
+    ],
+    "C3": [
+      "C3-b.ogg",
+      "C3-c.ogg",
+      "C3.ogg"
+    ],
+    "Csh3": [
+      "Csh3-b.ogg",
+      "Csh3-c.ogg",
+      "Csh3.ogg"
+    ],
+    "D3": [
+      "D3-b.ogg",
+      "D3-c.ogg",
+      "D3.ogg"
+    ],
+    "Dsh3": [
+      "Dsh3-b.ogg",
+      "Dsh3-c.ogg",
+      "Dsh3.ogg"
+    ],
+    "E3": [
+      "E3-b.ogg",
+      "E3-c.ogg",
+      "E3.ogg"
+    ],
+    "F2": [
+      "F2-b.ogg",
+      "F2-c.ogg",
+      "F2.ogg"
+    ],
+    "F3": [
+      "F3-b.ogg",
+      "F3-c.ogg",
+      "F3.ogg"
+    ],
+    "Fsh2": [
+      "Fsh2-b.ogg",
+      "Fsh2-c.ogg",
+      "Fsh2.ogg"
+    ],
+    "Fsh3": [
+      "Fsh3-b.ogg",
+      "Fsh3-c.ogg",
+      "Fsh3.ogg"
+    ],
+    "G2": [
+      "G2-b.ogg",
+      "G2-c.ogg",
+      "G2.ogg"
+    ],
+    "G3": [
+      "G3-b.ogg",
+      "G3-c.ogg",
+      "G3.ogg"
+    ],
+    "Gsh2": [
+      "Gsh2-b.ogg",
+      "Gsh2-c.ogg",
+      "Gsh2.ogg"
+    ],
+    "Gsh3": [
+      "Gsh3-b.ogg",
+      "Gsh3-c.ogg",
+      "Gsh3.ogg"
+    ]
+  }
 }

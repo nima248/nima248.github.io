@@ -81,10 +81,10 @@ document.addEventListener(
     const blob = new Blob([scriptText], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
     await import(url);
-    // Set to playback mode for longer buffering
+    // Set latency for longer buffering to avoid pops
     const context = new Tone.Context({ latencyHint: "playback" });
     Tone.setContext(context);
-    //console.debug(`Latencyhint: ${Tone.getContext().latencyHint}`);
+    console.debug(`Latencyhint: ${Tone.getContext().latencyHint}`);
 
     toneModulePromiseResolve();
   },
