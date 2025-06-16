@@ -36,7 +36,6 @@ async function setNotesDisabledStatus() {
       button.disabled = false;
     } else {
       button.disabled = true;
-      console.debug(`Disabled note ${button.id}`);
     }
   });
 }

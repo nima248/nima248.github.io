@@ -3,11 +3,13 @@ import * as math from "./math.js";
 
 const audioDir = "/assets/audio/";
 
+const N_VOICES = 2;
+
 export class VoiceManager {
   /* Manages Voice objects by directing them which audio
    *  files to play.
    */
-  constructor(nVoices = 7) {
+  constructor(nVoices = N_VOICES) {
     this.voices = [];
     this.audioManifest = null;
     this.audioFileBlobs = new Map();
@@ -106,6 +108,7 @@ export class VoiceManager {
         console.debug(`Added voice number ${this.voices.length}`);
         await this.voices[i].initialise(this.voiceVolumeDb);
       }
+      this.voices[i].setFadeoutFast();
       this.voices[i].playFile(url, note.semitonesOffset);
       // Delay between starting each voice
       if (i < this.nVoices - 1) {
@@ -119,6 +122,7 @@ export class VoiceManager {
     console.debug("Stopping all voices");
     this.playingFreq = null;
     for (const voice of this.voices) {
+      voice.setFadeoutSlow();
       voice.stop();
     }
   }

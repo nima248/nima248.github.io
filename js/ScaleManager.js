@@ -58,6 +58,5 @@ export class ScaleManager {
     // Convert semitones shift to a frequency multiplier
     const shiftMult = 2 ** (this.semitonesShift / 12);
     this.basisFreq = DEFAULT_BASIS_FREQS[this.scale.basis] * shiftMult;
-    console.debug(`Basis ${this.scale.basis} set to ${this.basisFreq}`);
   }
 }
