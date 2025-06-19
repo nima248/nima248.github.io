@@ -1,114 +1,77 @@
-import { toneModulePromise } from "./ToneJsLoader.js";
-
-const FADEIN = 0.1;
-const FADEOUT_FAST = 0.1; // Changing to new note
-const FADEOUT_SLOW = 1.6; // Ending playback
-const START_DELAY = 0.05;
-
-let Tone = null; // dynamically imported after user interaction
+const FADEIN = 100;
+const FADEOUT_FAST = 200; // Changing to new note
+const FADEOUT_SLOW = 1600; // Ending playback
+const START_DELAY = 50;
 
 export class Voice {
-  /* Wraps a Tone.Player object for audio playback
+  /* Wraps a Howler object for audio playback
+   * of a single audio file
    */
-  constructor() {
-    this.initialised = false;
-  }
-
-  async initialise(volumeDb) {
-    if (!Tone) {
-      await toneModulePromise;
-      Tone = window.Tone;
-      await Tone.start();
-      console.debug();
-    }
-    this.player = new Tone.Player();
-    this.player.fadeIn = FADEIN;
-    this.fadeOut = FADEOUT_FAST;
-    this.player.toDestination();
-    this.volumeDb = volumeDb;
-    this.startTime = null;
-    this.run = false;
-    this._stopPromise = null;
-    this._fullyStopped = true;
-    this.initialised = true;
-    this.lastStartTime = 0;
-  }
-
-  setFadeoutSlow() {
-    this.fadeOut = FADEOUT_SLOW;
-  }
-
-  setFadeoutFast() {
-    this.fadeOut = FADEOUT_FAST;
-  }
-
-  async playFile(url, pitchOffset) {
-    if (!this.initialised) {
-      console.error("this.player was not initialised yet!");
-    }
-    this.stop()
-      .then(() => this.player.load(url))
-      .then(() => this.start());
-  }
-
-  start() {
-    this.setVolume(this.volumeDb);
-    this.run = true;
-    let startTime = Tone.now() + START_DELAY;
-    if (startTime <= this.lastStartTime) {
-      startTime = this.lastStartTime + 0.001;
-    }
-    this.player.start(startTime);
-    this.lastStartTime = startTime;
-    this.startTime = Tone.now();
-  }
-
-  async stop() {
-    if (this.player.state === "stopped") {
-      return true;
-    }
-    if (this._stopPromise) {
-      return this._stopPromise;
-    }
-    this.run = false;
-    this.player.volume.cancelScheduledValues(Tone.now());
-    this.player.volume.linearRampTo(-Infinity, this.fadeOut);
-    this._stopPromise = new Promise((resolve) => {
-      setTimeout(() => {
-        this.player.stop();
-        resolve(true);
-      }, this.fadeOut * 1000);
+  constructor(audioUrl, fullVolume = 1.0) {
+    this._loadedPResolve = null;
+    this._loadedP = new Promise((resolve) => {
+      this._loadedPResolve = resolve;
     });
-    this._stopPromise.finally(() => {
-      this._stopPromise = null;
+    this._fadePromise = null;
+    this._fadePromiseResolve = null;
+    this.howl = new Howl({
+      src: [audioUrl],
+      volume: 0,
+      onload: () => {
+        this._loadedPResolve();
+      },
     });
-
-    return this._stopPromise;
+    this.fullVolume = fullVolume;
+    this.playing = false;
   }
 
-  // TODO fix
-  // Optionally change volume before restart
-  restart(newVolume = null) {
-    this.stop();
-    if (newVolume) {
-      this.setVolume(db);
-    }
-    // Ensure we're still running after the timeout
-    if (this.run) {
-      this.start();
-    }
+  ready() {
+    return this._loadedP;
   }
 
-  timeRemaining() {
-    if (this.state !== "started") {
-      return 0;
-    }
-    const elapsed = Tone.now() - this.startTime;
-    return this.player.buffer.duration - elapsed;
+  setSemitonesOffset(semitonesOffset) {
+    const rate = 2 ** (semitonesOffset / 12);
+    this.howl.rate(rate);
   }
 
-  // Change volume when player is stopped
-  setVolume(db) {
-    this.player.volume.value = db;
+  async play() {
+    await this.ready();
+    if (!this.playing) {
+      this.playing = true;
+      this.howl.play();
+    }
+    this.howl.off("fade"); // cancel any fade triggers
+    this.fadein();
+  }
+
+  stop(fast = false) {
+    if (!this.playing) {
+      return;
+    }
+    const fadeoutTime = fast ? FADEOUT_FAST : FADEOUT_SLOW;
+    this.fadeoutAndStop(fadeoutTime);
+  }
+
+  fadein() {
+    const currentVolume = this.howl.volume();
+    if (currentVolume === this.fullVolume) {
+      return;
+    }
+    const fadeinTime = FADEIN * (1 - currentVolume / this.fullVolume);
+    this.howl.fade(currentVolume, this.fullVolume, fadeinTime);
+  }
+
+  fadeoutAndStop(time) {
+    const currentVolume = this.howl.volume();
+    if (currentVolume === 0) {
+      this.howl.stop();
+    }
+    const fadeoutTime = time * (currentVolume / this.fullVolume);
+    this.howl.off("fade");
+    this.howl.fade(currentVolume, 0, fadeoutTime);
+    this.howl.once("fade", () => {
+      this.howl.stop();
+      this.playing = false;
+    });
   }
 }

@@ -1,25 +1,21 @@
 import { Voice } from "./Voice.js";
 import * as math from "./math.js";
+import * as util from "./util.js";
 
 const audioDir = "/assets/audio/";
 
-const N_VOICES = 3;
+const N_VOICES = 1;
 
 export class VoiceManager {
   /* Manages Voice objects by directing them which audio
    *  files to play.
    */
   constructor(nVoices = N_VOICES) {
-    this.voices = [];
+    this.voices = new Map();
     this.audioManifest = null;
-    this.audioFileBlobs = new Map();
-    this.audioFileBlobURLs = new Map();
-    this.playingFreq = null;
-    this.setNVoices(nVoices);
     this._audioManifestLoaded = new Promise((resolve) => {
       this._audioManifestLoadedResolve = resolve;
     });
-    this.initialise();
   }
 
   initialise() {
@@ -29,31 +25,9 @@ export class VoiceManager {
     } else {
       throw "No supported audio format!";
     }
-    this.startFetchAudioManifest()
-      .then(() => this._audioManifestLoadedResolve())
-      .then(() => this.startFetchAudioFiles());
-  }
-
-  audioManifestLoaded() {
-    return this._audioManifestLoaded;
-  }
-
-  setNVoices(nVoices) {
-    if (!Number.isInteger(nVoices)) {
-      throw `Can't set nVoices to ${nVoices} - must be integer`;
-    }
-    this.nVoices = nVoices;
-    this.voiceVolumeDb = 20 * math.baseLog(10, 1 / Math.sqrt(nVoices)) - 6;
-    if (this.playingFreq) {
-      // gracefully restart all voices
-      for (voice of this.voices) {
-        voice.restartWithNewVolume(this.voiceVolumeDb);
-      }
-    } else {
-      for (voice of this.voices) {
-        voice.setVolume(this.voiceVolumeDb);
-      }
-    }
+    this.startFetchAudioManifest().then(() =>
+      this._audioManifestLoadedResolve(),
+    );
   }
 
   startFetchAudioManifest() {
@@ -72,77 +46,60 @@ export class VoiceManager {
       });
   }
 
-  startFetchAudioFiles() {
-    const allFiles = Object.values(this.audioManifest[this.audioFormat]).flat();
-    this.audioFileBlobs = new Map();
-    this.audioFileBlobURLs = new Map();
-    for (const file of allFiles) {
-      this.audioFileBlobs.set(
-        file,
-        fetch(`${audioDir}${this.audioFormat}/${file}`)
-          .then((res) => res.blob())
-          .catch((e) => console.error(e)),
-      );
-      this.audioFileBlobURLs.set(
-        file,
-        this.audioFileBlobs.get(file).then((blob) => URL.createObjectURL(blob)),
-      );
-    }
-    Promise.all(this.audioFileBlobURLs.values())
-      .then(() => {
-        console.info(
-          `Fetched ${this.audioFileBlobURLs.size} ${this.audioFormat} files`,
-        );
-      })
-      .catch((e) => {
-        console.error(`audio files initialisation error: ${e}`);
-      });
+  audioManifestLoaded() {
+    return this._audioManifestLoaded;
   }
 
-  haveAudioForFreq(frequency) {
-    const note = calculateWestNote(frequency);
-    return this.#haveAudioForNote(note);
+  loadVoices(frequencies) {
+    const notes = frequencies.map((f) => calculateWestNote(f));
+    notes.forEach((n) => {
+      this.getVoices(n.name); // loads a new voice if none are present
+    });
+  }
+
+  getVoices(noteName) {
+    if (!this.voices.has(noteName)) {
+      this.voices.set(noteName, []);
+    }
+    if (this.voices.get(noteName).length < 1) {
+      const url = this.urlsOfNote(noteName)[0];
+      this.voices.get(noteName).push(new Voice(url));
+    }
+    return this.voices.get(noteName);
   }
 
   async playFrequency(frequency) {
     const note = calculateWestNote(frequency);
-    if (!this.#haveAudioForNote(note)) {
+    if (!this._haveAudioForNote(note)) {
       console.warn(`Note ${note.name} has no matching audio file`);
       return;
     }
-    // Start all voices
-    const choices = this.audioManifest[this.audioFormat][note.name];
-    for (let i = 0; i < this.nVoices; i++) {
-      const file = choices[math.randomInt(choices.length)];
-      const url = await this.audioFileBlobURLs.get(file);
-      if (this.voices.length < i + 1) {
-        this.voices.push(new Voice());
-        console.debug(`Added voice number ${this.voices.length}`);
-        await this.voices[i].initialise(this.voiceVolumeDb);
-      }
-      this.voices[i].setFadeoutFast();
-      this.voices[i].playFile(url, note.semitonesOffset);
-      // Delay between starting each voice
-      if (i < this.nVoices - 1) {
-        let delayMs = (600 + math.randomInt(150)) / this.nVoices;
-        await new Promise((r) => setTimeout(r, delayMs));
-      }
+    this.stop(true);
+    const voice = util.randomChoice(this.getVoices(note.name));
+    voice.setSemitonesOffset(note.semitonesOffset);
+    voice.play();
+  }
+
+  stop(fast = false) {
+    for (const voice of Array.from(this.voices.values()).flat()) {
+      voice.stop(fast);
     }
   }
 
-  stop() {
-    console.debug("Stopping all voices");
-    this.playingFreq = null;
-    for (const voice of this.voices) {
-      voice.setFadeoutSlow();
-      voice.stop();
-    }
+  haveAudioForFreq(frequency) {
+    const note = calculateWestNote(frequency);
+    return this._haveAudioForNote(note);
   }
 
-  #haveAudioForNote(note) {
+  _haveAudioForNote(note) {
     return Object.keys(this.audioManifest[this.audioFormat]).includes(
       note.name,
     );
+  }
+
+  urlsOfNote(noteName) {
+    const files = this.audioManifest[this.audioFormat][noteName];
+    return files.map((f) => `${audioDir}${this.audioFormat}/${f}`);
   }
 }
 
