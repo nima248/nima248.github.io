@@ -10,8 +10,8 @@
     --note-btn-active-bg-hover: hsl(120, 50%, 34%);
     --note-btn-active-border-col: hsl(120, 50%, 37%);
 
-    --note-btn-size: 100px;
-    --note-btn-gap: 10px;
+    --note-btn-size: min((100/450)*100vw, 100px);
+    --note-btn-gap: min((10/450)*100vw, 10px);
 
     --pitch-btn-size: 50px;
 }
@@ -20,6 +20,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+}
+
+html {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+body {
+    overscroll-behavior: none;
 }
 
 body {

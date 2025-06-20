@@ -29,7 +29,7 @@ const DEFAULT_BASIS_FREQS = {
 export class ScaleManager {
   constructor() {
     this.scale = SCALES.diatonic;
-    this.semitonesShift = -1;
+    this.semitonesShift = -2;
     this.basisFrequency = null;
     this._calculateBasisFrequency();
   }
