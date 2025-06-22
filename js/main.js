@@ -1,4 +1,4 @@
-import { VoiceManager } from "./VoiceManager.js";
+import { SoundManager } from "./SoundManager.js";
 import { ScaleManager } from "./ScaleManager.js";
 
 const MAX_PITCH_SHIFT = 6;
@@ -6,8 +6,8 @@ const MIN_PITCH_SHIFT = -8;
 
 const ACTIVE_NOTE_CLASS = "active-note";
 
-const voiceManager = new VoiceManager();
-voiceManager.initialise();
+const soundManager = new SoundManager();
+soundManager.initialise();
 const scaleManager = new ScaleManager();
 
 const noteButtons = document.querySelectorAll(".note-btn");
@@ -30,10 +30,10 @@ function freqOfButton(button) {
 }
 
 async function setNotesEnabledStatusAsync() {
-  await voiceManager.audioManifestLoaded();
+  await soundManager.audioManifestLoaded();
   noteButtons.forEach((button) => {
     const freq = freqOfButton(button);
-    if (voiceManager.haveAudioForFreq(freq)) {
+    if (soundManager.haveAudioForFreq(freq)) {
       button.disabled = false;
     } else {
       button.disabled = true;
@@ -44,7 +44,7 @@ async function setNotesEnabledStatusAsync() {
 function loadEnabledNotes() {
   const enBut = getEnabledButtons();
   const freqs = enBut.map((b) => freqOfButton(b));
-  voiceManager.loadVoices(freqs);
+  soundManager.loadSound(freqs);
 }
 
 function getEnabledButtons() {
@@ -77,7 +77,7 @@ noteButtons.forEach((button) => {
       // deactivate
       button.classList.remove(ACTIVE_NOTE_CLASS);
       activeNoteButton = null;
-      voiceManager.stop();
+      soundManager.stop();
     } else {
       // activate
       if (activeNoteButton) {
@@ -86,7 +86,7 @@ noteButtons.forEach((button) => {
       button.classList.add(ACTIVE_NOTE_CLASS);
       activeNoteButton = button;
       const freq = freqOfButton(button);
-      voiceManager.playFrequency(freq);
+      soundManager.playFrequency(freq);
     }
   });
 });
@@ -104,10 +104,10 @@ pitchButtons.forEach((button) => {
     setNotesEnabledStatusAsync().then(() => loadEnabledNotes());
     if (activeNoteButton !== null) {
       const freq = freqOfButton(activeNoteButton);
-      if (voiceManager.haveAudioForFreq(freq)) {
-        voiceManager.playFrequency(freq);
+      if (soundManager.haveAudioForFreq(freq)) {
+        soundManager.playFrequency(freq);
       } else {
-        voiceManager.stop();
+        soundManager.stop();
         activeNoteButton.disabled = true;
         deactivateNoteButton(activeNoteButton);
       }
