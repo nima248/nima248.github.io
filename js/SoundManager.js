@@ -1,6 +1,7 @@
 import { SoundSource } from "./SoundSource.js";
 import * as math from "./math.js";
 import * as util from "./util.js";
+import { DEBUG } from "./config.js";
 
 const audioDir = "/assets/audio/";
 
@@ -102,11 +103,11 @@ export class SoundManager {
       return;
     }
     if (this._lastNote) {
-      console.debug(`Stopping _lastNote ${this._lastNote.name}`);
+      if (DEBUG) console.debug(`Stopping _lastNote ${this._lastNote.name}`);
       this.stop(true);
     }
     this._lastNote = newNote;
-    console.debug(`Scheduling newNote ${newNote.name}`);
+    if (DEBUG) console.debug(`Scheduling newNote ${newNote.name}`);
     const sources = this._getSources(newNote.name, N_VOICES);
     sources.forEach((source) => {
       source.setSemitonesOffset(newNote.semitonesOffset);
@@ -160,18 +161,9 @@ export class SoundManager {
         this._nextRestartIndex = 0;
       }
       this._playingSources[this._nextRestartIndex].restartOldest();
-      //console.debug(`Sound ${this._nextRestartIndex} restarted`);
       this._nextRestartIndex += 1;
       this._scheduleNextRestart();
     }, restartMs);
-  }
-
-  _cancelPlayTimeouts() {
-    this._playTimeoutIds.forEach((timeoutId) => {
-      clearTimeout(timeoutId);
-      this._playTimeoutIds.delete(timeoutId);
-      console.debug(`Cleared play timeout ${timeoutId}`);
-    });
   }
 
   haveAudioForFreq(frequency) {
@@ -227,8 +219,9 @@ export class SoundManager {
       }
     }
     this._panValues = pans;
-    console.debug(
-      `Pans ${nVoices} (${maxPan.toFixed(2)}): ${pans.map((p) => p.toFixed(2))}`,
-    );
+    if (DEBUG)
+      console.debug(
+        `Pans ${nVoices} (${maxPan.toFixed(2)}): ${pans.map((p) => p.toFixed(2))}`,
+      );
   }
 }

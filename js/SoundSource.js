@@ -1,4 +1,5 @@
 import { Mutex } from "./mutex.js";
+import { DEBUG } from "./config.js";
 
 const FADEIN = 200;
 const FADEOUT_FAST = 200; // Changing to new note
@@ -62,7 +63,7 @@ export class SoundSource {
             "play",
             () => {
               resolve(id);
-              console.debug(`${this._logP}Played ${id}`);
+              if (DEBUG) console.debug(`${this._logP}Played ${id}`);
             },
             id,
           );
@@ -153,7 +154,7 @@ export class SoundSource {
 
   _stopId(id) {
     this._howl.stop(id);
-    //console.debug(`${this._logP}Stopped ${id}`);
+    if (DEBUG) console.debug(`${this._logP}Stopped ${id}`);
     this._playingIds.delete(id);
   }
 }
