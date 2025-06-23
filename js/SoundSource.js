@@ -3,7 +3,6 @@ import { Mutex } from "./mutex.js";
 const FADEIN = 200;
 const FADEOUT_FAST = 200; // Changing to new note
 const FADEOUT_SLOW = 1600; // Ending playback
-const START_DELAY = 50;
 
 export class SoundSource {
   /* Wraps a Howler object for audio playback
@@ -14,6 +13,9 @@ export class SoundSource {
     this._loadedPromise = new Promise((resolve) => {
       this._loadedPromiseResolve = resolve;
     });
+    this._stopPromises = new Map();
+    this._stopPromiseResolves = new Map();
+    this._playPromises = new Map();
     this._howl = new Howl({
       src: [audioUrl],
       volume: 0,
@@ -24,30 +26,50 @@ export class SoundSource {
     this._fullVolume = fullVolume;
     this._playingIds = new Set();
     this._restartMutex = new Mutex();
+    this._allowPlay = false;
     this._rate = 1.0;
+
+    const before = audioUrl.lastIndexOf("/");
+    const after = audioUrl.lastIndexOf(".");
+    this._logP = `${audioUrl.slice(before + 1, after)} -> `;
   }
 
   setSemitonesOffset(semitonesOffset) {
     this._rate = 2 ** (semitonesOffset / 12);
   }
 
+  play() {
+    this._allowPlay = true;
+    this._addPlayback();
+  }
+
+  cancelScheduledPlays() {
+    this._allowPlay = false;
+  }
+
   /* Add a new playing instance */
-  addPlayback() {
-    this._allowNewPlays = true;
+  _addPlayback() {
     this._loadedPromise.then(() => {
-      if (!this._allowNewPlays) {
+      if (!this._allowPlay) {
         return;
       }
       const id = this._howl.play();
+      this._playPromises.set(
+        id,
+        new Promise((resolve) => {
+          this._howl.once(
+            "play",
+            () => {
+              resolve(id);
+              console.debug(`${this._logP}Played ${id}`);
+            },
+            id,
+          );
+        }),
+      );
       this._howl.rate(this._rate, id);
       this._playingIds.add(id);
       this._fadein(id);
-    });
-  }
-
-  stopAll(fast = false) {
-    this._playingIds.forEach((id) => {
-      this._fadeoutAndStopId(id, fast);
     });
   }
 
@@ -57,27 +79,25 @@ export class SoundSource {
 
   restartOldest() {
     this._restartMutex
-      .lock()
+      .lock(this._logP)
       /* Critical section (don't restart the same Id) */
       .then(() => {
         if (this._playingIds.size > 0) {
-          return [...this._playingIds][0];
+          const id = [...this._playingIds][0];
+          return this._fadeoutAndStopId(id, true);
         } else {
-          console.warn("Nothing to restart!");
+          console.warn(`${this._logP}Nothing to restart!`);
           throw new Error("BreakChain");
         }
       })
-      .then((id) => this._fadeoutAndStopId(id, true))
       /* End critical section */
-      .then(() => this._restartMutex.unlock())
-      .then(() => this.addPlayback())
+      .then(() => {
+        this._restartMutex.unlock();
+        this._addPlayback();
+      })
       .catch((err) => {
         if (err.message !== "BreakChain") throw err;
       });
-  }
-
-  cancelAwaitingPlays() {
-    this._allowNewPlays = false;
   }
 
   getPlayingIds() {
@@ -93,35 +113,44 @@ export class SoundSource {
     this._howl.fade(currentVolume, this._fullVolume, fadeinTime, id);
   }
 
-  _fadeoutAndStopId(id, fast) {
-    const time = fast ? FADEOUT_FAST : FADEOUT_SLOW;
+  async _fadeoutAndStopId(id, fast) {
+    if (this._playPromises.get(id)) {
+      await this._playPromises.get(id);
+      this._playPromises.delete(id);
+    }
+
     const currentVolume = this._howl.volume(id);
     if (currentVolume === 0) {
       this._stopId(id);
-      return;
+      return Promise.resolve(`id ${id} stopped immediately`);
     }
-    const fadeoutTime = time * (currentVolume / this._fullVolume);
-    this._howl.off("fade", null, id);
+    this._howl.volume(currentVolume, id);
+    //this._howl.off("fade", null, id);
+    let fadeoutTime = fast ? FADEOUT_FAST : FADEOUT_SLOW;
+    fadeoutTime *= currentVolume / this._fullVolume;
     this._howl.fade(currentVolume, 0, fadeoutTime, id);
-    let stopPromiseResolve;
-    const stopPromise = new Promise((resolve) => {
-      stopPromiseResolve = resolve;
-    });
-    this._howl.once(
-      "fade",
-      () => {
-        this._stopId(id);
-        stopPromiseResolve();
-      },
-      id,
-    );
-    return stopPromise;
+    if (!this._stopPromises.has(id)) {
+      let stopPromiseResolve;
+      const stopPromise = new Promise((resolve) => {
+        stopPromiseResolve = resolve;
+      });
+      this._stopPromises.set(id, stopPromise);
+      this._howl.once(
+        "fade",
+        () => {
+          this._stopId(id);
+          stopPromiseResolve();
+          this._stopPromises.delete(id);
+        },
+        id,
+      );
+    }
+    return this._stopPromises.get(id);
   }
 
   _stopId(id) {
     this._howl.stop(id);
+    //console.debug(`${this._logP}Stopped ${id}`);
     this._playingIds.delete(id);
-    if (!this._howl.playing()) {
-    }
   }
 }

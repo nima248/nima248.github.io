@@ -4,7 +4,7 @@ export class Mutex {
     this._waiters = [];
   }
 
-  async lock() {
+  async lock(logPrefix = "") {
     if (!this._locked) {
       this._locked = true;
       return;
@@ -12,6 +12,7 @@ export class Mutex {
 
     return new Promise((resolve) => {
       this._waiters.push(resolve);
+      console.warn(`${logPrefix}Mutex: ${this._waiters.length} waiting`);
     });
   }
 

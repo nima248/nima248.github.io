@@ -5,7 +5,7 @@ import * as util from "./util.js";
 const audioDir = "/assets/audio/";
 
 const N_VOICES = 5;
-const NOTE_CHANGE_SPREAD_MS = 350;
+const NOTE_CHANGE_SPREAD_MS = 550;
 const TOTAL_RESTART_TIME_MS = 9000; // should be approx length of audios
 
 export class SoundManager {
@@ -101,9 +101,11 @@ export class SoundManager {
       return;
     }
     if (this._lastNote) {
+      console.debug(`Stopping _lastNote ${this._lastNote.name}`);
       this.stop(true);
     }
     this._lastNote = newNote;
+    console.debug(`Scheduling newNote ${newNote.name}`);
     const sources = this._getSources(newNote.name, N_VOICES);
     sources.forEach((source) => {
       source.setSemitonesOffset(newNote.semitonesOffset);
@@ -112,7 +114,7 @@ export class SoundManager {
     for (let i = 0; i < N_VOICES; i++) {
       const thisSourceI = (startSourceI + i) % sources.length;
       const id = setTimeout(() => {
-        sources[thisSourceI].addPlayback();
+        sources[thisSourceI].play();
         this._playingSources.push(sources[thisSourceI]);
       }, this._noteChangeSpreadMs[i]);
       this._playTimeoutIds.add(id);
@@ -132,7 +134,7 @@ export class SoundManager {
     this._playingSources = [];
     const sourceIdPairs = [];
     this._getSources(this._lastNote.name).forEach((source) => {
-      source.cancelAwaitingPlays();
+      source.cancelScheduledPlays();
       source.getPlayingIds().forEach((id) => {
         sourceIdPairs.push([source, id]);
       });
@@ -156,7 +158,7 @@ export class SoundManager {
         this._nextRestartIndex = 0;
       }
       this._playingSources[this._nextRestartIndex].restartOldest();
-      console.debug(`Source ${this._nextRestartIndex} restarted`);
+      //console.debug(`Sound ${this._nextRestartIndex} restarted`);
       this._nextRestartIndex += 1;
       this._scheduleNextRestart();
     }, restartMs);
