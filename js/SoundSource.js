@@ -38,9 +38,9 @@ export class SoundSource {
     this._rate = 2 ** (semitonesOffset / 12);
   }
 
-  play() {
+  play(pan = 0) {
     this._allowPlay = true;
-    this._addPlayback();
+    this._addPlayback(pan);
   }
 
   cancelScheduledPlays() {
@@ -48,12 +48,13 @@ export class SoundSource {
   }
 
   /* Add a new playing instance */
-  _addPlayback() {
+  _addPlayback(pan) {
     this._loadedPromise.then(() => {
       if (!this._allowPlay) {
         return;
       }
       const id = this._howl.play();
+      this._howl.stereo(pan, id);
       this._playPromises.set(
         id,
         new Promise((resolve) => {
@@ -78,12 +79,14 @@ export class SoundSource {
   }
 
   restartOldest() {
+    let pan;
     this._restartMutex
       .lock(this._logP)
       /* Critical section (don't restart the same Id) */
       .then(() => {
         if (this._playingIds.size > 0) {
           const id = [...this._playingIds][0];
+          pan = this._howl.stereo(undefined, id);
           return this._fadeoutAndStopId(id, true);
         } else {
           console.warn(`${this._logP}Nothing to restart!`);
@@ -93,7 +96,7 @@ export class SoundSource {
       /* End critical section */
       .then(() => {
         this._restartMutex.unlock();
-        this._addPlayback();
+        this._addPlayback(pan);
       })
       .catch((err) => {
         if (err.message !== "BreakChain") throw err;

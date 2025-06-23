@@ -36,6 +36,7 @@ export class SoundManager {
       this._audioManifestLoadedPromiseResolve(),
     );
     this._refreshNoteChangeSpread();
+    this._calculatePanValues();
   }
 
   startFetchAudioManifest() {
@@ -114,7 +115,8 @@ export class SoundManager {
     for (let i = 0; i < N_VOICES; i++) {
       const thisSourceI = (startSourceI + i) % sources.length;
       const id = setTimeout(() => {
-        sources[thisSourceI].play();
+        const pan = this._panValues[i];
+        sources[thisSourceI].play(pan);
         this._playingSources.push(sources[thisSourceI]);
       }, this._noteChangeSpreadMs[i]);
       this._playTimeoutIds.add(id);
@@ -199,5 +201,34 @@ export class SoundManager {
         this._noteChangeSpreadMs.push(last);
       }
     }
+  }
+
+  _calculatePanValues(nVoices = N_VOICES) {
+    const pans = [];
+    let maxPan = 0;
+    if (nVoices === 1) {
+      pans.push(0);
+    } else {
+      maxPan = Math.min((nVoices - 1) * 0.2, 1.0);
+      const interval = (2 / (nVoices - 1)) * maxPan;
+      const nLevels = Math.floor(nVoices / 2); // Excludes center level
+      let level;
+      if (nVoices % 2 === 1) {
+        // Odd - one voice dead center
+        pans.push(0);
+        level = interval;
+      } else {
+        // Even - all voices panned
+        level = interval / 2;
+      }
+      for (let i = 0; i < nLevels; i++) {
+        pans.push(level, -level);
+        level += interval;
+      }
+    }
+    this._panValues = pans;
+    console.debug(
+      `Pans ${nVoices} (${maxPan.toFixed(2)}): ${pans.map((p) => p.toFixed(2))}`,
+    );
   }
 }
