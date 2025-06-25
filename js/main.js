@@ -67,6 +67,20 @@ function deactivateNoteButton(button) {
   activeNoteButton = null;
 }
 
+// Help with glitchy vertical height calculation on first load
+function forceReflow() {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 100);
+}
+if (document.readyState === "complete") {
+  forceReflow();
+} else {
+  window.addEventListener("load", () => {
+    forceReflow();
+  });
+}
+
 addEventListener("DOMContentLoaded", () => {
   setNotesEnabledStatusAsync().then(() => loadEnabledNotes());
 });
