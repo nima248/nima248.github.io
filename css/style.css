@@ -90,8 +90,10 @@ button:hover {
     border-radius: 20px;
 }
 
-.note-btn:disabled,
-.note-btn:disabled:hover {
+.note-btn.no-audio-available,
+.note-btn.no-audio-available:hover,
+.pitch-btn:disabled,
+.pitch-btn:disabled:hover {
     color: grey;
     background-color: var(--note-btn-bg-disabled);
 }

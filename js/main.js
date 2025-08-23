@@ -5,6 +5,7 @@ const MAX_PITCH_SHIFT = 6;
 const MIN_PITCH_SHIFT = -8;
 
 const ACTIVE_NOTE_CLASS = "active-note";
+const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
 
 const soundManager = new SoundManager();
 soundManager.initialise();
@@ -12,6 +13,7 @@ const scaleManager = new ScaleManager();
 
 const noteButtons = document.querySelectorAll(".note-btn");
 const pitchButtons = document.querySelectorAll(".pitch-btn");
+const body = document.querySelector("body");
 
 let activeNoteButton = null;
 
@@ -29,32 +31,32 @@ function freqOfButton(button) {
   return scaleManager.getFreq(note, octave);
 }
 
-async function setNotesEnabledStatusAsync() {
+async function setNotesAudioAvailableStatusAsync() {
   await soundManager.audioManifestLoaded();
   noteButtons.forEach((button) => {
     const freq = freqOfButton(button);
     if (soundManager.haveAudioForFreq(freq)) {
-      button.disabled = false;
+      button.classList.remove(NO_AUDIO_AVAILABLE_CLASS);
     } else {
-      button.disabled = true;
+      button.classList.add(NO_AUDIO_AVAILABLE_CLASS);
     }
   });
 }
 
-function loadEnabledNotes() {
-  const enBut = getEnabledButtons();
+function loadAudioAvailableNotes() {
+  const enBut = getAudioAvailableButtons();
   const freqs = enBut.map((b) => freqOfButton(b));
   soundManager.loadSound(freqs);
 }
 
-function getEnabledButtons() {
-  const enabledButtons = [];
+function getAudioAvailableButtons() {
+  const audioAvailableButtons = [];
   noteButtons.forEach((button) => {
-    if (!button.disabled) {
-      enabledButtons.push(button);
+    if (!button.classList.contains(NO_AUDIO_AVAILABLE_CLASS)) {
+      audioAvailableButtons.push(button);
     }
   });
-  return enabledButtons;
+  return audioAvailableButtons;
 }
 
 function activateNoteButton(button) {
@@ -62,9 +64,12 @@ function activateNoteButton(button) {
   activeNoteButton = button;
 }
 
-function deactivateNoteButton(button) {
-  button.classList.remove(ACTIVE_NOTE_CLASS);
-  activeNoteButton = null;
+async function turnOffSound() {
+  soundManager.stop();
+  if (activeNoteButton) {
+    activeNoteButton.classList.remove(ACTIVE_NOTE_CLASS);
+    activeNoteButton = null;
+  }
 }
 
 // Help with glitchy vertical height calculation on first load
@@ -82,16 +87,19 @@ if (document.readyState === "complete") {
 }
 
 addEventListener("DOMContentLoaded", () => {
-  setNotesEnabledStatusAsync().then(() => loadEnabledNotes());
+  setNotesAudioAvailableStatusAsync().then(() => loadAudioAvailableNotes());
 });
 
 noteButtons.forEach((button) => {
-  button.addEventListener("click", async () => {
-    if (button.classList.contains(ACTIVE_NOTE_CLASS)) {
+  button.addEventListener("click", async (event) => {
+    event.stopPropagation();
+
+    if (
+      button.classList.contains(ACTIVE_NOTE_CLASS) ||
+      button.classList.contains(NO_AUDIO_AVAILABLE_CLASS)
+    ) {
       // deactivate
-      button.classList.remove(ACTIVE_NOTE_CLASS);
-      activeNoteButton = null;
-      soundManager.stop();
+      turnOffSound();
     } else {
       // activate
       if (activeNoteButton) {
@@ -105,25 +113,29 @@ noteButtons.forEach((button) => {
   });
 });
 
+body.addEventListener("click", async (event) => {
+  turnOffSound();
+});
+
 const pitchDownBtn = document.querySelector("#pitch-down");
 const pitchUpBtn = document.querySelector("#pitch-up");
 const pitchShiftP = document.querySelector("#pitch-shift");
 pitchShiftP.textContent = scaleManager.getSemitonesShift();
 
 pitchButtons.forEach((button) => {
-  button.addEventListener("click", async () => {
-    //
+  button.addEventListener("click", async (event) => {
+    event.stopPropagation();
+
     const semitonesChange = button.id === "pitch-up" ? 1 : -1;
     scaleManager.changeSemitonesShift(semitonesChange);
-    setNotesEnabledStatusAsync().then(() => loadEnabledNotes());
+    setNotesAudioAvailableStatusAsync().then(() => loadAudioAvailableNotes());
     if (activeNoteButton !== null) {
       const freq = freqOfButton(activeNoteButton);
       if (soundManager.haveAudioForFreq(freq)) {
         soundManager.playFrequency(freq);
       } else {
-        soundManager.stop();
-        activeNoteButton.disabled = true;
-        deactivateNoteButton(activeNoteButton);
+        activeNoteButton.classList.add(NO_AUDIO_AVAILABLE_CLASS);
+        turnOffSound();
       }
     }
 
