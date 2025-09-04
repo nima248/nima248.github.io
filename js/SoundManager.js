@@ -136,12 +136,14 @@ export class SoundManager {
     this._restartTimeoutId = null;
     this._playingSources = [];
     const sourceIdPairs = [];
-    this._getSources(this._lastNote.name).forEach((source) => {
-      source.cancelScheduledPlays();
-      source.getPlayingIds().forEach((id) => {
-        sourceIdPairs.push([source, id]);
+    if (this._lastNote) {
+      this._getSources(this._lastNote.name).forEach((source) => {
+        source.cancelScheduledPlays();
+        source.getPlayingIds().forEach((id) => {
+          sourceIdPairs.push([source, id]);
+        });
       });
-    });
+    }
     /* Schedule the stop actions */
     this._refreshNoteChangeSpread();
     for (const [i, pair] of sourceIdPairs.entries()) {

@@ -93,25 +93,28 @@ addEventListener("DOMContentLoaded", () => {
 noteButtons.forEach((button) => {
   button.addEventListener("click", async (event) => {
     event.stopPropagation();
-
-    if (
-      button.classList.contains(ACTIVE_NOTE_CLASS) ||
-      button.classList.contains(NO_AUDIO_AVAILABLE_CLASS)
-    ) {
-      // deactivate
-      turnOffSound();
-    } else {
-      // activate
-      if (activeNoteButton) {
-        activeNoteButton.classList.remove(ACTIVE_NOTE_CLASS);
-      }
-      button.classList.add(ACTIVE_NOTE_CLASS);
-      activeNoteButton = button;
-      const freq = freqOfButton(button);
-      soundManager.playFrequency(freq);
-    }
+    noteButtonHandler(button);
   });
 });
+
+async function noteButtonHandler(button) {
+  if (
+    button.classList.contains(ACTIVE_NOTE_CLASS) ||
+    button.classList.contains(NO_AUDIO_AVAILABLE_CLASS)
+  ) {
+    // deactivate
+    turnOffSound();
+  } else {
+    // activate
+    if (activeNoteButton) {
+      activeNoteButton.classList.remove(ACTIVE_NOTE_CLASS);
+    }
+    button.classList.add(ACTIVE_NOTE_CLASS);
+    activeNoteButton = button;
+    const freq = freqOfButton(button);
+    soundManager.playFrequency(freq);
+  }
+}
 
 body.addEventListener("click", async (event) => {
   turnOffSound();
