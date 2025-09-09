@@ -1,5 +1,7 @@
+import { GamepadManager } from "./GamepadManager.js";
 import { SoundManager } from "./SoundManager.js";
 import { ScaleManager } from "./ScaleManager.js";
+import { gamepadMap } from "./gamepad_maps/8bitdo_zero_2.js";
 
 const MAX_PITCH_SHIFT = 6;
 const MIN_PITCH_SHIFT = -8;
@@ -10,6 +12,16 @@ const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
 const soundManager = new SoundManager();
 soundManager.initialise();
 const scaleManager = new ScaleManager();
+const gamepadManager = new GamepadManager(gamepadMap, (action) => {
+  console.log("Gamepad action ", action);
+  if (action == "off") {
+    turnOffSound();
+  } else if (action) {
+    const id = "note-" + action;
+    const button = document.getElementById(id);
+    noteHandler(button, false);
+  }
+});
 
 const noteButtons = document.querySelectorAll(".note-btn");
 const pitchButtons = document.querySelectorAll(".pitch-btn");
@@ -93,17 +105,19 @@ addEventListener("DOMContentLoaded", () => {
 noteButtons.forEach((button) => {
   button.addEventListener("click", async (event) => {
     event.stopPropagation();
-    noteButtonHandler(button);
+    noteHandler(button);
   });
 });
 
-async function noteButtonHandler(button) {
+async function noteHandler(button, gui_press = true) {
   if (
-    button.classList.contains(ACTIVE_NOTE_CLASS) ||
+    (button.classList.contains(ACTIVE_NOTE_CLASS) && gui_press) ||
     button.classList.contains(NO_AUDIO_AVAILABLE_CLASS)
   ) {
     // deactivate
     turnOffSound();
+  } else if (button === activeNoteButton) {
+    // do nothing, it's already playing
   } else {
     // activate
     if (activeNoteButton) {
