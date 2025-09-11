@@ -3,7 +3,7 @@ import { DEBUG } from "./config.js";
 
 const FADEIN = 200;
 const FADEOUT_FAST = 200; // Changing to new note
-const FADEOUT_SLOW = 1600; // Ending playback
+const FADEOUT_SLOW = 600; // Ending playback
 
 export class SoundSource {
   /* Wraps a Howler object for audio playback

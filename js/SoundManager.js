@@ -5,8 +5,8 @@ import { DEBUG } from "./config.js";
 
 const audioDir = "/assets/audio/";
 
-const N_VOICES = 5;
-const NOTE_CHANGE_SPREAD_MS = 550;
+const N_VOICES = 4;
+const NOTE_CHANGE_SPREAD_MS = 350;
 const TOTAL_RESTART_TIME_MS = 9000; // should be approx length of audios
 
 export class SoundManager {

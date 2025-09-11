@@ -38,11 +38,9 @@ export class GamepadManager {
           }
           this.axes[axis].pressTime = Date.now();
           this.axes[axis].pressValue = value;
-          console.log("axis ", axis, value);
         } else if (pressTime && value === 0) {
           const pressDuration = Date.now() - pressTime;
           const releasedValue = this.axes[axis].pressValue;
-          console.log("axissss ", axis, value);
           let action;
           if (pressDuration < PRESS_HOLD_DURATION_MS) {
             action = this.mapping.axes[axis][releasedValue][0];
@@ -64,9 +62,8 @@ export class GamepadManager {
           this.buttonPressTimes[i] = Date.now();
         } else if (pressTime && !isPressed) {
           const pressDuration = Date.now() - pressTime;
-          console.log("button ", i);
           if (!this.mapping.buttons[i]) {
-            console.log("No mapping for button ", i);
+            console.warn("No mapping for button ", i);
           } else {
             let action;
             if (pressDuration < PRESS_HOLD_DURATION_MS) {
