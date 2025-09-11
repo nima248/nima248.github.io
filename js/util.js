@@ -44,3 +44,13 @@ export function getSupportedAudioFormat() {
     return null; // No supported format found
   }
 }
+
+export function detectPlatform() {
+  const ua = navigator.userAgent || "";
+  if (/Android/i.test(ua)) return "android";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Win/i.test(ua)) return "windows";
+  if (/Mac/i.test(ua)) return "mac";
+  if (/Linux/i.test(ua)) return "linux";
+  return null;
+}

@@ -1,7 +1,6 @@
 import { GamepadManager } from "./GamepadManager.js";
 import { SoundManager } from "./SoundManager.js";
 import { ScaleManager } from "./ScaleManager.js";
-import { gamepadMap } from "./gamepad_maps/8bitdo_zero_2.js";
 
 const MAX_PITCH_SHIFT = 6;
 const MIN_PITCH_SHIFT = -8;
@@ -9,10 +8,12 @@ const MIN_PITCH_SHIFT = -8;
 const ACTIVE_NOTE_CLASS = "active-note";
 const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
 
+const GAMEPAD = "8bitdo_zero_2";
+
 const soundManager = new SoundManager();
 soundManager.initialise();
 const scaleManager = new ScaleManager();
-const gamepadManager = new GamepadManager(gamepadMap, (action) => {
+const gamepadManager = new GamepadManager(GAMEPAD, (action) => {
   console.log("Gamepad action ", action);
   if (action == "off") {
     turnOffSound();
