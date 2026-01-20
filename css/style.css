@@ -1,4 +1,7 @@
 :root {
+    --main-color: ivory;
+    --secondary-color: gainsboro;
+
     --bg: hsl(0, 0%, 11%);
 
     --btn-bg: hsl(0, 0%, 28%);
@@ -17,9 +20,9 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html, body {
@@ -39,7 +42,7 @@ body {
 }
 
 body {
-    color: ivory;
+    color: var(--main-color);
     background-color: var(--bg);
     font-family: sans-serif;
     font-size: 32px;
@@ -53,8 +56,20 @@ body {
     align-items: center;
 }
 
+#app-layout {
+    position: relative;
+}
+
+#open-settings {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    cursor: pointer;
+}
+
 button {
-    color: ivory;
+    color: var(--main-color);
     background-color: var(--btn-bg);
     border: 4px solid var(--btn-border-col);
 }
@@ -128,4 +143,85 @@ button:hover {
 #pitch-shift {
     width: 90px;
     text-align: center;
+}
+
+.settings-btn {
+    color: var(--secondary-color);
+    font-size: 32px;
+    background: var(--bg);
+    border: none;
+}
+
+.settings-btn:hover {
+    color: var(--main-color);
+    background-color: var(--bg);
+}
+
+#settings-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    max-width: 80%;
+    height: 100%;
+    background: var(--bg);
+    font-size: 18px;
+
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1001;
+}
+
+#settings-panel.open {
+    transform: translateX(0);
+}
+
+#settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    padding-top: 19px;
+    padding-right: 17px;
+    background: var(--bg);
+}
+
+#settings-content {
+    padding: 20px;
+}
+
+#settings-content p {
+    font-weight: 300;
+    padding: 20px;
+}
+
+#settings-panel h2 {
+    padding: 10px;
+}
+
+#close-settings {
+    font-size: 40px;
+}
+
+#settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio {
+    display: flex;
+    flex-direction: row;
+    align-items: centre;
+    padding: 5px 10px 5px 10px;
+}
+
+.radio label {
+    padding-left: 14px;
 }

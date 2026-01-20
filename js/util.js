@@ -36,8 +36,8 @@ export function calculateWestNote(frequency) {
 export function getSupportedAudioFormat() {
   const audio = document.createElement("audio");
 
-  if (audio.canPlayType('audio/ogg; codecs="vorbis"')) {
-    return "ogg";
+  if (audio.canPlayType('audio/ogg; codecs="opus"')) {
+    return "opus";
   } else if (audio.canPlayType("audio/mpeg")) {
     return "mp3";
   } else {

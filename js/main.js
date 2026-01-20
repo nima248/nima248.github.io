@@ -30,6 +30,9 @@ const body = document.querySelector("body");
 
 let activeNoteButton = null;
 
+const settingsPanel = document.getElementById("settings-panel");
+const settingsBackdrop = document.getElementById("settings-backdrop");
+
 function freqOfButton(button) {
   let note = button.id.replace("note-", "");
   let octave = 0;
@@ -172,4 +175,37 @@ pitchButtons.forEach((button) => {
       }
     }
   });
+});
+
+function openSettings() {
+  settingsPanel.classList.add("open");
+  settingsPanel.setAttribute("aria-hidden", "false");
+  settingsBackdrop.hidden = false;
+  //document.body.style.overflow = "hidden"; // prevent background scroll
+}
+
+function closeSettings() {
+  settingsPanel.classList.remove("open");
+  settingsPanel.setAttribute("aria-hidden", "true");
+  settingsBackdrop.hidden = true;
+  //document.body.style.overflow = "";
+}
+
+function toggleSettings() {
+  settingsPanel.classList.contains("open") ? closeSettings() : openSettings();
+}
+
+settingsBackdrop.addEventListener("click", closeSettings);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && settingsPanel.classList.contains("open")) {
+    closeSettings();
+  }
+});
+
+document.getElementById("open-settings").addEventListener("click", () => {
+  toggleSettings();
+});
+document.getElementById("close-settings").addEventListener("click", () => {
+  closeSettings();
 });

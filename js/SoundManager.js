@@ -174,6 +174,8 @@ export class SoundManager {
   }
 
   _haveAudioForNote(note) {
+    console.log(this.audioFormat);
+    console.log(this.audioManifest[this.audioFormat]);
     return Object.keys(this.audioManifest[this.audioFormat]).includes(
       note.name,
     );
