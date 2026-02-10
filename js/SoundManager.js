@@ -26,7 +26,7 @@ export class SoundManager {
     this._playbackType = null;
     this._audioFormat = null;
     this._nVoices = null;
-    this._playRequested = false; // the intent of this object's owner
+    this._playbackRequested = false;
     this._lastNote = null;
     this._playTimeoutIds = new Set();
     this._playingSources = [];
@@ -62,7 +62,10 @@ export class SoundManager {
     if (!this.audioTypeAvailable(audioType)) {
       throw new Error(`Audio type ${audioType} unavailable!`);
     }
-    this.stop(true);
+    if (audioType === this._audioType) {
+      return;
+    }
+    this._stop(true);
     this._audioType = audioType;
     if (!this._soundSources[audioType]) {
       this._soundSources[audioType] = new Map();
@@ -76,6 +79,9 @@ export class SoundManager {
       }
       this._playbackType = "mono";
       this._nVoices = 1;
+    }
+    if (this._playbackRequested) {
+      this.playNote(this._lastNote);
     }
   }
 
@@ -135,7 +141,7 @@ export class SoundManager {
         let loopWithoutFade, volume;
         if (this._playbackType == "mono") {
           loopWithoutFade = true;
-          volume = 0.45;
+          volume = 0.4;
         } else {
           loopWithoutFade = false;
           volume = 0.8 / this._nVoices ** (3 / 5);
@@ -158,9 +164,10 @@ export class SoundManager {
       console.warn(`Note ${note.name} has no matching audio file`);
       return;
     }
+    this._playbackRequested = true;
     if (this._lastNote) {
       if (DEBUG) console.debug(`Stopping _lastNote ${this._lastNote.name}`);
-      this.stop(true);
+      this._stop(true);
     }
     this._lastNote = note;
     if (DEBUG) console.debug(`Scheduling note ${note.name}`);
@@ -186,6 +193,10 @@ export class SoundManager {
 
   stop(fast = false) {
     this._playbackRequested = false;
+    this._stop(fast);
+  }
+
+  _stop(fast = false) {
     /* Cancel all pending activities */
     this._playTimeoutIds.forEach((id) => {
       clearTimeout(id);

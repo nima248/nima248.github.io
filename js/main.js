@@ -145,6 +145,7 @@ async function noteHandler(button, gui_press = true) {
 
 body.addEventListener("click", async (event) => {
   turnOffSound();
+  console.log("body clicked");
 });
 
 const pitchDownBtn = document.querySelector("#pitch-down");
@@ -205,7 +206,10 @@ function toggleSettings() {
   settingsPanel.classList.contains("open") ? closeSettings() : openSettings();
 }
 
-settingsBackdrop.addEventListener("click", closeSettings);
+settingsBackdrop.addEventListener("click", (event) => {
+  event.stopPropagation();
+  closeSettings();
+});
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && settingsPanel.classList.contains("open")) {
@@ -213,16 +217,23 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-document.getElementById("open-settings").addEventListener("click", () => {
+document.getElementById("open-settings").addEventListener("click", (event) => {
+  event.stopPropagation();
   toggleSettings();
 });
-document.getElementById("close-settings").addEventListener("click", () => {
+document.getElementById("close-settings").addEventListener("click", (event) => {
+  event.stopPropagation();
   closeSettings();
+});
+
+settingsPanel.addEventListener("click", async (event) => {
+  event.stopPropagation();
 });
 
 const audioTypeButtons = document.querySelectorAll("input[name=audioType]");
 audioTypeButtons.forEach((button) => {
-  button.addEventListener("change", async () => {
+  button.addEventListener("change", async (event) => {
+    event.stopPropagation();
     if (button.checked) {
       let newAudioType = button.value;
       console.log(`Selected audio type: ${newAudioType}`);
