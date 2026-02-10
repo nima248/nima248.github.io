@@ -80,8 +80,8 @@ def make_synth_tones(output_dir):
     START_NOTE = 'C'
     START_OCTAVE = 2
 
-    END_NOTE = 'A'
-    END_OCTAVE = 3
+    END_NOTE = 'D'
+    END_OCTAVE = 4
 
     note_letters = list(NOTES)
     note_i = note_letters.index(START_NOTE)

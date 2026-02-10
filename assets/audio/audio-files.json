@@ -10,8 +10,14 @@
       "Ash2": [
         "Ash2.mp3"
       ],
+      "Ash3": [
+        "Ash3.mp3"
+      ],
       "B2": [
         "B2.mp3"
+      ],
+      "B3": [
+        "B3.mp3"
       ],
       "C2": [
         "C2.mp3"
@@ -19,17 +25,26 @@
       "C3": [
         "C3.mp3"
       ],
+      "C4": [
+        "C4.mp3"
+      ],
       "Csh2": [
         "Csh2.mp3"
       ],
       "Csh3": [
         "Csh3.mp3"
       ],
+      "Csh4": [
+        "Csh4.mp3"
+      ],
       "D2": [
         "D2.mp3"
       ],
       "D3": [
         "D3.mp3"
+      ],
+      "D4": [
+        "D4.mp3"
       ],
       "Dsh2": [
         "Dsh2.mp3"
@@ -167,8 +182,14 @@
       "Ash2": [
         "Ash2.opus"
       ],
+      "Ash3": [
+        "Ash3.opus"
+      ],
       "B2": [
         "B2.opus"
+      ],
+      "B3": [
+        "B3.opus"
       ],
       "C2": [
         "C2.opus"
@@ -176,17 +197,26 @@
       "C3": [
         "C3.opus"
       ],
+      "C4": [
+        "C4.opus"
+      ],
       "Csh2": [
         "Csh2.opus"
       ],
       "Csh3": [
         "Csh3.opus"
       ],
+      "Csh4": [
+        "Csh4.opus"
+      ],
       "D2": [
         "D2.opus"
       ],
       "D3": [
         "D3.opus"
+      ],
+      "D4": [
+        "D4.opus"
       ],
       "Dsh2": [
         "Dsh2.opus"
