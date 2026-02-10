@@ -5,20 +5,28 @@ import { DEBUG } from "./config.js";
 
 const audioDir = "/assets/audio/";
 
-const N_VOICES = 4;
+const N_VOICES_POLY = 10;
 const NOTE_CHANGE_SPREAD_MS = 350;
 const TOTAL_RESTART_TIME_MS = 9000; // should be approx length of audios
 
+const AUDIO_TYPES_MONO = ["1.25"]; // mono types will loop without fading
+const AUDIO_TYPES_POLY = ["vox1"]; // poly types will playback in unison and stagger fade
+
 export class SoundManager {
-  /* Manages Voice objects by directing them which audio
+  /* Manages SoundSource objects by directing them which audio
    *  files to play.
    */
   constructor() {
-    this.soundSources = new Map();
+    this._soundSources = new Map();
     this.audioManifest = null;
     this._audioManifestLoadedPromise = new Promise((resolve) => {
       this._audioManifestLoadedPromiseResolve = resolve;
     });
+    this._audioType = null;
+    this._playbackType = null;
+    this._audioFormat = null;
+    this._nVoices = null;
+    this._playRequested = false; // the intent of this object's owner
     this._lastNote = null;
     this._playTimeoutIds = new Set();
     this._playingSources = [];
@@ -26,18 +34,53 @@ export class SoundManager {
     this._nextRestart = 0;
   }
 
-  initialise() {
-    this.audioFormat = util.getSupportedAudioFormat();
-    if (this.audioFormat) {
-      console.info(`Audio format: ${this.audioFormat}`);
+  initialise(audioType) {
+    this._audioFormat = util.getSupportedAudioFormat();
+    if (this._audioFormat) {
+      console.info(`Audio format: ${this._audioFormat}`);
     } else {
       throw "No supported audio format!";
     }
-    this.startFetchAudioManifest().then(() =>
-      this._audioManifestLoadedPromiseResolve(),
-    );
+    this.startFetchAudioManifest().then(() => {
+      this._audioManifestLoadedPromiseResolve();
+      this.setAudioType(audioType);
+    });
     this._refreshNoteChangeSpread();
     this._calculatePanValues();
+  }
+
+  audioTypeAvailable(audioType) {
+    if (
+      Object.keys(this.audioManifest[this._audioFormat]).includes(audioType)
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  setAudioType(audioType) {
+    if (!this.audioTypeAvailable(audioType)) {
+      throw new Error(`Audio type ${audioType} unavailable!`);
+    }
+    this.stop(true);
+    this._audioType = audioType;
+    if (!this._soundSources[audioType]) {
+      this._soundSources[audioType] = new Map();
+    }
+    if (AUDIO_TYPES_POLY.includes(audioType)) {
+      this._playbackType = "poly";
+      this._nVoices = N_VOICES_POLY;
+    } else {
+      if (!AUDIO_TYPES_MONO.includes(audioType)) {
+        throw `audioType "${audioType}" doesn't appear in AUDIO_TYPES_MONO or AUDIO_TYPES_POLY`;
+      }
+      this._playbackType = "mono";
+      this._nVoices = 1;
+    }
+  }
+
+  getAudioType() {
+    return this._audioType;
   }
 
   startFetchAudioManifest() {
@@ -79,41 +122,54 @@ export class SoundManager {
    * available for that note.
    */
   _getSources(noteName, nCreate = 0) {
-    if (!this.soundSources.has(noteName)) {
-      this.soundSources.set(noteName, []);
+    if (!this._soundSources[this._audioType].has(noteName)) {
+      this._soundSources[this._audioType].set(noteName, []);
     }
     if (nCreate > 0) {
-      const currNSources = this.soundSources.get(noteName).length;
+      const currNSources =
+        this._soundSources[this._audioType].get(noteName).length;
       const nUrls = this.urlsOfNote(noteName).length;
       nCreate = Math.min(nCreate, nUrls);
       for (let i = currNSources; i < nCreate; i++) {
         const url = this.urlsOfNote(noteName)[i];
-        this.soundSources
+        let loopWithoutFade, volume;
+        if (this._playbackType == "mono") {
+          loopWithoutFade = true;
+          volume = 0.45;
+        } else {
+          loopWithoutFade = false;
+          volume = 0.8 / this._nVoices ** (3 / 5);
+        }
+        this._soundSources[this._audioType]
           .get(noteName)
-          .push(new SoundSource(url, 0.8 / N_VOICES ** (3 / 5)));
+          .push(new SoundSource(url, loopWithoutFade, volume));
       }
     }
-    return this.soundSources.get(noteName);
+    return this._soundSources[this._audioType].get(noteName);
   }
 
   playFrequency(frequency) {
-    const newNote = util.calculateWestNote(frequency);
-    if (!this._haveAudioForNote(newNote)) {
-      console.warn(`Note ${newNote.name} has no matching audio file`);
+    const note = util.calculateWestNote(frequency);
+    this.playNote(note);
+  }
+
+  playNote(note) {
+    if (!this._haveAudioForNote(note)) {
+      console.warn(`Note ${note.name} has no matching audio file`);
       return;
     }
     if (this._lastNote) {
       if (DEBUG) console.debug(`Stopping _lastNote ${this._lastNote.name}`);
       this.stop(true);
     }
-    this._lastNote = newNote;
-    if (DEBUG) console.debug(`Scheduling newNote ${newNote.name}`);
-    const sources = this._getSources(newNote.name, N_VOICES);
+    this._lastNote = note;
+    if (DEBUG) console.debug(`Scheduling note ${note.name}`);
+    const sources = this._getSources(note.name, this._nVoices);
     sources.forEach((source) => {
-      source.setSemitonesOffset(newNote.semitonesOffset);
+      source.setSemitonesOffset(note.semitonesOffset);
     });
     const startSourceI = math.randomInt(sources.length);
-    for (let i = 0; i < N_VOICES; i++) {
+    for (let i = 0; i < this._nVoices; i++) {
       const thisSourceI = (startSourceI + i) % sources.length;
       const id = setTimeout(() => {
         const pan = this._panValues[i];
@@ -123,10 +179,13 @@ export class SoundManager {
       this._playTimeoutIds.add(id);
     }
     this._nextRestartIndex = 0;
-    this._scheduleNextRestart();
+    if (this._playbackType == "poly") {
+      this._scheduleNextRestart();
+    }
   }
 
   stop(fast = false) {
+    this._playbackRequested = false;
     /* Cancel all pending activities */
     this._playTimeoutIds.forEach((id) => {
       clearTimeout(id);
@@ -156,7 +215,7 @@ export class SoundManager {
   }
 
   _scheduleNextRestart() {
-    let restartMs = TOTAL_RESTART_TIME_MS / N_VOICES;
+    let restartMs = TOTAL_RESTART_TIME_MS / this._nVoices;
     restartMs -= math.randomInt(restartMs * 0.25);
     this._restartTimeoutId = setTimeout(() => {
       if (this._nextRestartIndex > this._playingSources.length - 1) {
@@ -174,42 +233,46 @@ export class SoundManager {
   }
 
   _haveAudioForNote(note) {
-    console.log(this.audioFormat);
-    console.log(this.audioManifest[this.audioFormat]);
-    return Object.keys(this.audioManifest[this.audioFormat]).includes(
-      note.name,
-    );
+    if (this._audioType == null) {
+      return false;
+    }
+    return Object.keys(
+      this.audioManifest[this._audioFormat][this._audioType],
+    ).includes(note.name);
   }
 
   urlsOfNote(noteName) {
-    const files = this.audioManifest[this.audioFormat][noteName];
-    return files.map((f) => `${audioDir}${this.audioFormat}/${f}`);
+    const files =
+      this.audioManifest[this._audioFormat][this._audioType][noteName];
+    return files.map(
+      (f) => `${audioDir}${this._audioFormat}/${this._audioType}/${f}`,
+    );
   }
 
   _refreshNoteChangeSpread() {
     this._noteChangeSpreadMs = [0];
-    if (N_VOICES > 1) {
-      const inc = NOTE_CHANGE_SPREAD_MS / (N_VOICES - 1);
+    if (this._nVoices > 1) {
+      const inc = NOTE_CHANGE_SPREAD_MS / (this._nVoices - 1);
       const random = Math.floor(inc * 0.3);
       let last = 0;
-      for (let i = 1; i < N_VOICES; i++) {
+      for (let i = 1; i < this._nVoices; i++) {
         last += inc + math.randomInt(random) - random / 2;
         this._noteChangeSpreadMs.push(last);
       }
     }
   }
 
-  _calculatePanValues(nVoices = N_VOICES) {
+  _calculatePanValues() {
     const pans = [];
     let maxPan = 0;
-    if (nVoices === 1) {
+    if (this._nVoices === 1) {
       pans.push(0);
     } else {
-      maxPan = Math.min((nVoices - 1) * 0.2, 1.0);
-      const interval = (2 / (nVoices - 1)) * maxPan;
-      const nLevels = Math.floor(nVoices / 2); // Excludes center level
+      maxPan = Math.min((this._nVoices - 1) * 0.2, 1.0);
+      const interval = (2 / (this._nVoices - 1)) * maxPan;
+      const nLevels = Math.floor(this._nVoices / 2); // Excludes center level
       let level;
-      if (nVoices % 2 === 1) {
+      if (this._nVoices % 2 === 1) {
         // Odd - one voice dead center
         pans.push(0);
         level = interval;
@@ -225,7 +288,7 @@ export class SoundManager {
     this._panValues = pans;
     if (DEBUG)
       console.debug(
-        `Pans ${nVoices} (${maxPan.toFixed(2)}): ${pans.map((p) => p.toFixed(2))}`,
+        `Pans ${this._nVoices} (${maxPan.toFixed(2)}): ${pans.map((p) => p.toFixed(2))}`,
       );
   }
 }

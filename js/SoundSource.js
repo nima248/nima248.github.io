@@ -9,7 +9,7 @@ export class SoundSource {
   /* Wraps a Howler object for audio playback
    * of a single audio file
    */
-  constructor(audioUrl, fullVolume = 1.0) {
+  constructor(audioUrl, loopWithoutFade = false, fullVolume = 1.0) {
     this._loadedPromiseResolve = null;
     this._loadedPromise = new Promise((resolve) => {
       this._loadedPromiseResolve = resolve;
@@ -23,7 +23,9 @@ export class SoundSource {
       onload: () => {
         this._loadedPromiseResolve();
       },
+      loop: loopWithoutFade,
     });
+    this._loopWithoutFade = loopWithoutFade;
     this._fullVolume = fullVolume;
     this._playingIds = new Set();
     this._restartMutex = new Mutex();

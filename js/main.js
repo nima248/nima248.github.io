@@ -4,6 +4,7 @@ import { ScaleManager } from "./ScaleManager.js";
 
 const MAX_PITCH_SHIFT = 6;
 const MIN_PITCH_SHIFT = -8;
+const DEFAULT_AUDIO_TYPE = "1.25";
 
 const ACTIVE_NOTE_CLASS = "active-note";
 const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
@@ -11,7 +12,7 @@ const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
 const GAMEPAD = "8bitdo_zero_2";
 
 const soundManager = new SoundManager();
-soundManager.initialise();
+soundManager.initialise(DEFAULT_AUDIO_TYPE);
 const scaleManager = new ScaleManager();
 const gamepadManager = new GamepadManager(GAMEPAD, (action) => {
   console.log("Gamepad action ", action);
@@ -49,14 +50,22 @@ function freqOfButton(button) {
 
 async function setNotesAudioAvailableStatusAsync() {
   await soundManager.audioManifestLoaded();
+  let haveAnyAudio = false;
   noteButtons.forEach((button) => {
     const freq = freqOfButton(button);
     if (soundManager.haveAudioForFreq(freq)) {
+      haveAnyAudio = true;
       button.classList.remove(NO_AUDIO_AVAILABLE_CLASS);
     } else {
       button.classList.add(NO_AUDIO_AVAILABLE_CLASS);
     }
   });
+  if (!haveAnyAudio) {
+    console.error(
+      "No available audio for audio type ",
+      soundManager.getAudioType(),
+    );
+  }
 }
 
 function loadAudioAvailableNotes() {
@@ -177,6 +186,7 @@ pitchButtons.forEach((button) => {
   });
 });
 
+// Settings panel  -----------------------------------------------------------
 function openSettings() {
   settingsPanel.classList.add("open");
   settingsPanel.setAttribute("aria-hidden", "false");
@@ -208,4 +218,16 @@ document.getElementById("open-settings").addEventListener("click", () => {
 });
 document.getElementById("close-settings").addEventListener("click", () => {
   closeSettings();
+});
+
+const audioTypeButtons = document.querySelectorAll("input[name=audioType]");
+audioTypeButtons.forEach((button) => {
+  button.addEventListener("change", async () => {
+    if (button.checked) {
+      let newAudioType = button.value;
+      console.log(`Selected audio type: ${newAudioType}`);
+      soundManager.setAudioType(newAudioType);
+      await setNotesAudioAvailableStatusAsync();
+    }
+  });
 });
