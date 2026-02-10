@@ -81,8 +81,15 @@ export class SoundManager {
       this._nVoices = 1;
     }
     if (this._playbackRequested) {
-      this.playNote(this._lastNote);
+      const playOk = this.playNote(this._lastNote, true);
+      if (!playOk) {
+        this._playbackRequested = false; // we can no longer honor the request
+      }
     }
+  }
+
+  getPlaybackRequestedState() {
+    return this._playbackRequested;
   }
 
   getAudioType() {
@@ -156,13 +163,15 @@ export class SoundManager {
 
   playFrequency(frequency) {
     const note = util.calculateWestNote(frequency);
-    this.playNote(note);
+    return this.playNote(note);
   }
 
-  playNote(note) {
+  playNote(note, noMatchOk = false) {
     if (!this._haveAudioForNote(note)) {
-      console.warn(`Note ${note.name} has no matching audio file`);
-      return;
+      if (!noMatchOk) {
+        console.warn(`Note ${note.name} has no matching audio file`);
+      }
+      return false;
     }
     this._playbackRequested = true;
     if (this._lastNote) {
@@ -189,6 +198,7 @@ export class SoundManager {
     if (this._playbackType == "poly") {
       this._scheduleNextRestart();
     }
+    return true;
   }
 
   stop(fast = false) {

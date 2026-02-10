@@ -239,6 +239,10 @@ audioTypeButtons.forEach((button) => {
       console.log(`Selected audio type: ${newAudioType}`);
       soundManager.setAudioType(newAudioType);
       await setNotesAudioAvailableStatusAsync();
+      const playing = soundManager.getPlaybackRequestedState();
+      if (!playing) {
+        turnOffSound();
+      }
     }
   });
 });
