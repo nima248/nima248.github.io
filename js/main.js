@@ -11,8 +11,29 @@ const NO_AUDIO_AVAILABLE_CLASS = "no-audio-available";
 
 const GAMEPAD = "8bitdo_zero_2";
 
+const SETTINGS_LOCAL_STORAGE = "app_settings";
+
+const saved_settings = localStorage.getItem(SETTINGS_LOCAL_STORAGE);
+let settings;
+if (saved_settings) {
+  settings = JSON.parse(saved_settings);
+  console.log(settings);
+} else {
+  settings = {
+    audio_type: null,
+  };
+}
+
+function saveSettings() {
+  localStorage.setItem(SETTINGS_LOCAL_STORAGE, JSON.stringify(settings));
+  console.log("saved settings");
+  console.log(settings);
+}
+
 const soundManager = new SoundManager();
-soundManager.initialise(DEFAULT_AUDIO_TYPE);
+const audioType = settings["audio_type"] || DEFAULT_AUDIO_TYPE;
+console.log("initial audio type set to ", audioType);
+soundManager.initialise(audioType);
 const scaleManager = new ScaleManager();
 const gamepadManager = new GamepadManager(GAMEPAD, (action) => {
   console.log("Gamepad action ", action);
@@ -232,11 +253,16 @@ settingsPanel.addEventListener("click", async (event) => {
 
 const audioTypeButtons = document.querySelectorAll("input[name=audioType]");
 audioTypeButtons.forEach((button) => {
+  if (button.value === settings["audio_type"]) {
+    button.checked = true;
+  }
   button.addEventListener("change", async (event) => {
     event.stopPropagation();
     if (button.checked) {
       let newAudioType = button.value;
       console.log(`Selected audio type: ${newAudioType}`);
+      settings["audio_type"] = newAudioType;
+      saveSettings();
       soundManager.setAudioType(newAudioType);
       await setNotesAudioAvailableStatusAsync();
       const playing = soundManager.getPlaybackRequestedState();
