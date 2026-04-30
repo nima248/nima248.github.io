@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="stylesheet" href="/css/ison.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+    <script type="module" src="/js/ison/main.js"></script>
+  </head>
+  <body>
+    <div id="app-layout">
+      <button class="settings-btn" id="open-settings">☰</button>
+      <div id="content">
+        <div id="note-grid">
+          <div class="note-row align-left">
+            <button class="note-btn" id="note-high-ni">Ni</button>
+          </div>
+          <div class="note-row">
+            <button class="note-btn" id="note-di">Di</button>
+            <button class="note-btn" id="note-ke">Ke</button>
+            <button class="note-btn" id="note-zo-flat">Zo-f</button>
+            <button class="note-btn" id="note-zo">Zo</button>
+          </div>
+          <div class="note-row">
+            <button class="note-btn" id="note-ni">Ni</button>
+            <button class="note-btn" id="note-pa">Pa</button>
+            <button class="note-btn" id="note-bou">Bou</button>
+            <button class="note-btn" id="note-ga">Ga</button>
+          </div>
+          <div class="note-row">
+            <button class="note-btn" id="note-low-di">Di</button>
+            <button class="note-btn" id="note-low-ke">Ke</button>
+            <button class="note-btn" id="note-low-zo-flat">Zo-f</button>
+            <button class="note-btn" id="note-low-zo">Zo</button>
+          </div>
+          <div class="note-row align-right">
+            <button class="note-btn" id="note-low-ga">Ga</button>
+          </div>
+        </div>
+        <div id="pitch-control">
+          <button class="pitch-btn" id="pitch-down">-</button>
+          <p id="pitch-shift">pitch</p>
+          <button class="pitch-btn" id="pitch-up">+</button>
+        </div>
+      </div>
+    </div>
+    <div id="settings-backdrop" class="backdrop" hidden></div>
+    <aside id="settings-panel" aria-hidden="true">
+      <header id="settings-header">
+        <button class="settings-btn" id="close-settings">✕</button>
+      </header>
+      <div id="settings-content">
+        <div class="settings-section" id="sound-type-select">
+          <h2>Sound type</h2>
+          <div class="radio">
+            <input type="radio" id="vocals" name="audioType" value="vox1">
+            <label for="vocals">Vocals</label>
+          </div>
+          <div class="radio">
+            <input type="radio" id="synth" name="audioType" value="1.25" checked="true">
+            <label for="synth">Organ</label>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </body>
+</html>

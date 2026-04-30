@@ -38,10 +38,6 @@ html {
 }
 
 body {
-    overscroll-behavior: none;
-}
-
-body {
     color: var(--main-color);
     background-color: var(--bg);
     font-family: sans-serif;
@@ -54,6 +50,11 @@ body {
     align-content: center;
     justify-content: center;
     align-items: center;
+    overscroll-behavior: none;
+}
+
+h2 {
+    font-weight: 200;
 }
 
 #app-layout {

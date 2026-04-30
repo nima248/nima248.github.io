@@ -4,66 +4,78 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-    <link rel="stylesheet" href="./css/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
-    <script type="module" src="js/main.js"></script>
+    <link rel="stylesheet" href="/css/home.css">
   </head>
   <body>
-    <div id="app-layout">
-      <button class="settings-btn" id="open-settings">☰</button>
-      <div id="content">
-        <div id="note-grid">
-          <div class="note-row align-left">
-            <button class="note-btn" id="note-high-ni">Ni</button>
-          </div>
-          <div class="note-row">
-            <button class="note-btn" id="note-di">Di</button>
-            <button class="note-btn" id="note-ke">Ke</button>
-            <button class="note-btn" id="note-zo-flat">Zo-f</button>
-            <button class="note-btn" id="note-zo">Zo</button>
-          </div>
-          <div class="note-row">
-            <button class="note-btn" id="note-ni">Ni</button>
-            <button class="note-btn" id="note-pa">Pa</button>
-            <button class="note-btn" id="note-bou">Bou</button>
-            <button class="note-btn" id="note-ga">Ga</button>
-          </div>
-          <div class="note-row">
-            <button class="note-btn" id="note-low-di">Di</button>
-            <button class="note-btn" id="note-low-ke">Ke</button>
-            <button class="note-btn" id="note-low-zo-flat">Zo-f</button>
-            <button class="note-btn" id="note-low-zo">Zo</button>
-          </div>
-          <div class="note-row align-right">
-            <button class="note-btn" id="note-low-ga">Ga</button>
-          </div>
-        </div>
-        <div id="pitch-control">
-          <button class="pitch-btn" id="pitch-down">-</button>
-          <p id="pitch-shift">pitch</p>
-          <button class="pitch-btn" id="pitch-up">+</button>
-        </div>
+    <header class="topnav">
+      <div class="nav-inner">
+        <a href="/" class="logo">
+          <img src="/assets/favicon.svg" alt="Logo">
+          Byz<span id="logo-bold">Ison</span>
+        </a>
       </div>
-    </div>
-    <div id="settings-backdrop" class="backdrop" hidden></div>
-    <aside id="settings-panel" aria-hidden="true">
-      <header id="settings-header">
-        <button class="settings-btn" id="close-settings">✕</button>
-      </header>
-      <div id="settings-content">
-        <div class="settings-section" id="sound-type-select">
-          <h2>Sound type</h2>
-          <div class="radio">
-            <input type="radio" id="vocals" name="audioType" value="vox1">
-            <label for="vocals">Vocals</label>
-          </div>
-          <div class="radio">
-            <input type="radio" id="synth" name="audioType" value="1.25" checked="true">
-            <label for="synth">Organ</label>
-          </div>
-          <p>"Organ" is the recommended choice for practicing, because it is more precise, and makes it easier to hear the "harmony" (the relationship between the ison and the note you are singing).</p>
-        </div>
-      </div>
-    </aside>
+    </header>
+    <section class="hero">
+      <h1>byzison.xyz</h1>
+      <h2 class="subheading">A Byzantine ison web app</h2>
+    </section>
+    <main class="content">
+      <a href="/app/" target="_blank"><button id="open-app-btn">Open ison app</button></a>
+      <p>
+        The ison (drone) is the foundation of Byzantine chant, the ecclesiastical music of the Orthodox Church. It is "the floor on which the melody dances". It anchors our melodies and helps us to understand what we are hearing and singing.
+      </p>
+      <p>
+        Practicing with the accompaniment of ison is very important for all students of Byzantine music, because it helps in developing a stable and accurate sense of pitch. Now you can have ison with you wherever you have a web browser - no installation required.
+      </p>
+      <p>
+        This web app is intended to be used for teaching and practicing Byzantine chant. Based on typical Church practice and the words of St. John Chrysostom, the use of this app in Church services is strongly discouraged.
+      </p>
+      <h2>Features</h2>
+      <ul>
+        <li>
+          Choose your sound
+          <ul>
+            <li>
+              <b>Vocals -</b> real vocals with several "voices" singing at once, just like a choir.
+            </li>
+            <li>
+              <b>Organ -</b> a pure computer-generated tone with perfect stability and harmonic structure. If you are serious about developing your pitch accuracy, this is a better choice for practicing (even if you think it's annoying).
+            </li>
+          </ul>
+        </li>
+        <li>
+          Pitch is shiftable in semitones. At 0, Νι is concert C.
+        </li>
+        <li>
+          Pure tuned intervals (diatonic scale)
+          <ul>
+            <li>Νι - 1/1</li>
+            <li>Πα - 9/8</li>
+            <li>Βου - 5/4</li>
+            <li>Γα - 4/3</li>
+            <li>Δι - 3/2</li>
+            <li>Κε - 27/16 (9/8 above Δι)</li>
+            <li>Ζω flat - 16/9 (4/3 above Γα)</li>
+            <li>Ζω - 15/8 (5/4 above Δι)</li>
+          </ul>
+        </li>
+      </ul>
+      <h2>Contact</h2>
+      <p class="center">
+        Feedback and feature requests are welcome.<br>
+        If something seems broken, please help by letting me know.
+      </p>
+      <form class="contact-form"
+        action="https://formspree.io/f/xaqvwvwy"
+        method="POST"
+      >
+        <label for="email">Your email:</label>
+        <input id="email" type="email" name="email" required>
+        <label for="message">Your message:</label>
+        <textarea id="message" name="message" required></textarea>
+        <button type="submit">Submit</button>
+      </form>
+      <p id="github">View the project on <a href="https://github.com/nima248/byz-ison" target="_blank">GitHub</a></p>
+    </main>
   </body>
 </html>
