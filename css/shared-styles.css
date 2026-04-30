@@ -1,0 +1,64 @@
+@import "gentium.css";
+@import "bitter.css";
+@import "ez-psaltica.css";
+@import "ez-fthora.css";
+
+:root {
+    --main-color: ivory;
+    --secondary-color: gainsboro;
+
+    --bg: hsl(0, 0%, 11%);
+
+    --btn-bg: hsl(210, 80%, 28%);
+    --btn-bg-hover: hsl(210, 80%, 37%);
+    --btn-border-col: hsl(210, 80%, 37%);
+}
+
+* {
+    font-family:GentiumW, serif;
+    margin: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.topnav {
+    width: 100%;
+}
+
+.nav-inner {
+    height: 67px;
+    max-width:900px;
+    margin:auto;
+    padding:14px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display:flex;
+    align-items:center;
+    color: inherit;
+    font-size: 21px;
+    font-weight: 100;
+}
+
+#logo-bold {
+    font-weight: 900;
+    margin-left: 2px;
+}
+
+.logo > img {
+    width:30px;
+    height:30px;
+    margin-right:12px;
+}
+
+.logo {
+    text-decoration: none;
+    color: inherit;
+}
+

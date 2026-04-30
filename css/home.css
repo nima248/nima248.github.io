@@ -1,22 +1,9 @@
-@import "gentium.css";
-@import "bitter.css";
-@import "ez-psaltica.css";
+@import "shared-styles.css";
 
 :root {
-    --main-color: ivory;
-    --secondary-color: gainsboro;
-
-    --bg: hsl(0, 0%, 11%);
-
-    --btn-border-col: hsl(210, 80%, 37%);
     --btn-bg: hsl(210, 80%, 28%);
     --btn-bg-hover: hsl(210, 80%, 37%);
-    --btn-bg-disabled: var(--bg);
-}
-
-* {
-    font-family:GentiumW, serif;
-    margin: 0;
+    --btn-border-col: hsl(210, 80%, 37%);
 }
 
 html {
@@ -36,48 +23,10 @@ body {
     align-items:center;
 }
 
-p {
-    margin: 14px;
+p, li {
+    margin: 15px;
+    line-height: 135%;
 }
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.topnav {
-    width: 100%;
-}
-
-.nav-inner {
-    max-width:900px;
-    margin:auto;
-    padding:14px 24px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo {
-    display:flex;
-    align-items:center;
-    color: inherit;
-    font-size: 21px;
-    font-weight: 100;
-}
-
-#logo-bold {
-    font-weight: 900;
-    margin-left: 2px;
-}
-
-.logo > img {
-    width:30px;
-    height:30px;
-    margin-right:12px;
-}
-
 
 .hero {
     text-align:center;
@@ -122,7 +71,7 @@ ul {
 }
 
 li {
-    margin: 10px;
+    margin: 15px;
 }
 
 button {
@@ -146,6 +95,11 @@ button:hover {
 #github {
     margin: 30px;
     margin-bottom: 50px
+}
+
+#github > a {
+    color: inherit;
+    text-decoration: underline;
 }
 
 

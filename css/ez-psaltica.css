@@ -1,5 +1,5 @@
 @font-face {
   font-family: ezPsaltica;
   font-weight: 400;
-  src: url(../assets/fonts/ezPsaltica.ttf);
+  src: url("/assets/fonts/ezPsaltica.ttf");
 }

@@ -1,9 +1,6 @@
+@import "shared-styles.css";
+
 :root {
-    --main-color: ivory;
-    --secondary-color: gainsboro;
-
-    --bg: hsl(0, 0%, 11%);
-
     --btn-bg: hsl(0, 0%, 28%);
     --btn-bg-hover: hsl(0, 0%, 34%);
     --btn-bg-disabled: var(--bg);
@@ -22,7 +19,6 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html, body {
@@ -37,19 +33,22 @@ html {
     height: 100%;
 }
 
+#open-settings {
+    display: flex;
+    align-items: center;
+}
+
+#open-settings > svg {
+    fill: currentColor;
+    --darkreader-inline-color: var(--darkreader-text-4a5565, #b1aaa0)
+}
+
 body {
     color: var(--main-color);
     background-color: var(--bg);
     font-family: sans-serif;
     font-size: 32px;
     font-weight: 700;
-    height: 100%;
-    margin: 0;
-    display: flex;
-    flex-flow: column nowrap;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
     overscroll-behavior: none;
 }
 
@@ -57,16 +56,20 @@ h2 {
     font-weight: 200;
 }
 
-#app-layout {
-    position: relative;
+#app-layout p,
+#app-layout button {
+    font-family: sans-serif;
 }
 
-#open-settings {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 100;
-    cursor: pointer;
+#app-layout {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-flow: column nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
 button {
@@ -124,6 +127,13 @@ button:hover {
     background-color: var(--note-btn-active-bg-hover);
 }
 
+.enharmonic-fthora {
+    font-family: ezFthora;
+    font-size: 140%;
+    position: absolute;
+    transform: translate(38px, -70px);
+}
+
 #pitch-control {
     font-size: 28px;
     font-weight: 600;
@@ -166,7 +176,7 @@ button:hover {
     max-width: 80%;
     height: 100%;
     background: var(--bg);
-    font-size: 18px;
+    font-size: 24px;
 
     transform: translateX(100%);
     transition: transform 0.3s ease;
@@ -195,6 +205,10 @@ button:hover {
     padding: 20px;
 }
 
+#settings-content li {
+    padding: 20px;
+}
+
 #settings-panel h2 {
     padding: 10px;
 }
@@ -216,11 +230,24 @@ button:hover {
     flex-direction: column;
 }
 
+.settings-section > h2 {
+    font-family: Bitter, serif;
+    margin-bottom: 15px;
+}
+
+.settings-section > div {
+    margin: 6px 0px 6px 0px;
+}
+
+.settings-section label {
+    font-family: sans-serif;
+}
+
 .radio {
     display: flex;
     flex-direction: row;
     align-items: centre;
-    padding: 5px 10px 5px 10px;
+    padding: 5px 15px 5px 15px;
 }
 
 .radio label {
