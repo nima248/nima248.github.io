@@ -16,21 +16,9 @@
     --pitch-btn-size: 50px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-}
-
 html, body {
     height: 100%;
-    overflow: hidden;
     touch-action: none;
-}
-
-html {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
 }
 
 #open-settings {
@@ -44,32 +32,32 @@ html {
 }
 
 body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
     color: var(--main-color);
     background-color: var(--bg);
-    font-family: sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-    overscroll-behavior: none;
 }
 
 h2 {
     font-weight: 200;
 }
 
-#app-layout p,
-#app-layout button {
-    font-family: sans-serif;
-}
-
 #app-layout {
-    height: 100%;
+    font-family: sans-serif;
+    font-size: 32px;
+    font-weight: 700;
     margin: 0;
     display: flex;
-    flex-flow: column nowrap;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
     position: relative;
+}
+
+#content {
+    margin: auto;
+    padding: 10px;
 }
 
 button {
@@ -86,7 +74,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: var(--note-btn-gap);
-    width: var(--note-btn-size * 4 + --note-btn-gap * 3);
+    width: calc(var(--note-btn-size * 4 + --note-btn-gap * 3));
 }
 
 .note-row{
@@ -107,6 +95,7 @@ button:hover {
     height: var(--note-btn-size);
     width: var(--note-btn-size);
     border-radius: 20px;
+    position: relative;
 }
 
 .note-btn.no-audio-available,
@@ -196,17 +185,14 @@ button:hover {
     background: var(--bg);
 }
 
-#settings-content {
+#settings-content,
+#settings-content p,
+#settings-content li {
     padding: 20px;
 }
 
 #settings-content p {
     font-weight: 300;
-    padding: 20px;
-}
-
-#settings-content li {
-    padding: 20px;
 }
 
 #settings-panel h2 {
@@ -246,7 +232,7 @@ button:hover {
 .radio {
     display: flex;
     flex-direction: row;
-    align-items: centre;
+    align-items: center;
     padding: 5px 15px 5px 15px;
 }
 

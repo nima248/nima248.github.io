@@ -8,20 +8,23 @@
     <link rel="stylesheet" href="/css/home.css">
   </head>
   <body>
-    <header class="topnav">
-      <div class="nav-inner">
-        <a href="/" class="logo">
-          <img src="/assets/icons/favicon.svg" alt="Logo">
-          Byz<span id="logo-bold">Ison</span>
-        </a>
-      </div>
-    </header>
     <section class="hero">
-      <h1>byzison.xyz</h1>
-      <h2 class="subheading">A Byzantine ison web app</h2>
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <header class="topnav">
+          <div class="nav-inner">
+            <a href="/" class="logo">
+              <img src="/assets/icons/favicon.svg" alt="Logo">
+              Byz<span id="logo-bold">Ison</span>
+            </a>
+          </div>
+        </header>
+        <h1>byzison.xyz</h1>
+        <h2 class="subheading">A Byzantine ison web app</h2>
+        <a href="/app/" target="_blank"><button id="open-app-btn">Open ison app</button></a>
+      </div>
     </section>
     <main class="content">
-      <a href="/app/" target="_blank"><button id="open-app-btn">Open ison app</button></a>
       <p>
         The ison (drone) is the foundation of Byzantine chant, the ecclesiastical music of the Orthodox Church. It is "the floor on which the melody dances". It anchors our melodies and helps us to understand what we are hearing and singing.
       </p>
@@ -40,7 +43,7 @@
               <b>Vocals -</b> real vocals with several "voices" singing at once, just like a choir.
             </li>
             <li>
-              <b>Organ -</b> a pure computer-generated tone with perfect stability and harmonic structure. If you are serious about developing your pitch accuracy, this is a better choice for practicing (even if you think it's annoying).
+              <b>Organ -</b> a computer-generated tone with perfect stability and harmonic structure. If you are serious about developing your pitch accuracy, this is a great choice for practicing.
             </li>
           </ul>
         </li>
@@ -49,7 +52,7 @@
         </li>
         <li>
           Pure tuned intervals (diatonic scale)
-          <ul>
+          <ul class="tighter-ul">
             <li>Νη - 1/1</li>
             <li>Πα - 9/8</li>
             <li>Βου - 5/4</li>
@@ -70,12 +73,13 @@
         action="https://formspree.io/f/xaqvwvwy"
         method="POST"
       >
-        <label for="email">Your email:</label>
-        <input id="email" type="email" name="email" required>
         <label for="message">Your message:</label>
         <textarea id="message" name="message" required></textarea>
+        <label for="email">Your email (optional, if you want a reply):</label>
+        <input id="email" type="email" name="email">
         <button type="submit">Submit</button>
       </form>
+      <p id="inspired">Inspired by <a href="https://isonapp.com/" target="_blank">this ison app</a></p>
       <p id="github">View the project on <a href="https://github.com/nima248/byz-ison" target="_blank">GitHub</a></p>
     </main>
   </body>
